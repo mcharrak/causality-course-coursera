@@ -1753,15 +1753,52 @@ summary {
 <p>Try executing this chunk by clicking the <em>Run</em> button within the chunk or by placing your cursor inside it and pressing <em>Cmd+Shift+Enter</em>.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWF0cml4KDE6OSwgbnJvdyA9IDMsIG5jb2wgPSAzKVxuYGBgIn0= -->
-<pre class="r"><code>matrix(1:9, nrow = 3, ncol = 3)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBsb2FkIHBhY2FrZ2VzXG5saWJyYXJ5KHRhYmxlb25lKVxubGlicmFyeShNYXRjaGluZylcblxuIyByZWFkIGluIGRhdGFcbmxvYWQodXJsKFwiaHR0cHM6Ly9iaW9zdGF0LmFwcC52dW1jLm9yZy93aWtpL3B1Yi9NYWluL0RhdGFTZXRzL3JoYy5zYXZcIikpXG4jIHZpZXcgZGF0YVxuVmlldyhyaGMpXG5gYGAifQ== -->
+<pre class="r"><code># load pacakges
+library(tableone)
+library(Matching)
+
+# read in data
+load(url(&quot;https://biostat.app.vumc.org/wiki/pub/Main/DataSets/rhc.sav&quot;))
+# view data
+View(rhc)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgICBbLDFdIFssMl0gWywzXVxuWzEsXSAgICAxICAgIDQgICAgN1xuWzIsXSAgICAyICAgIDUgICAgOFxuWzMsXSAgICAzICAgIDYgICAgOVxuIn0= -->
-<pre><code>     [,1] [,2] [,3]
-[1,]    1    4    7
-[2,]    2    5    8
-[3,]    3    6    9</code></pre>
-<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3RyZWF0bWVudCB2YXJpYWJsZXMgaXMgc3dhbmcxXG4jeCB2YXJpYWJsZXMgdGhhdCB3ZSB3aWxsIHVzZVxuI2NhdDE6IHByaW1hcnkgZGlzZWFzZSBjYXRlZ29yeVxuI2FnZVxuI3NleFxuI21lYW5icDE6IG1lYW4gYmxvb2QgcHJlc3N1cmVcblxuIyB2YXJpYWJsZXMgd2Ugd2lsbCBrZWVwXG5saXN0X2tlZXBfdmFyIDwtIGMoXCJjYXQxXCIsIFwiZGVhdGhcIiwgXCJhZ2VcIiwgXCJzZXhcIiwgXCJzd2FuZzFcIilcblxuIyBjcmVhdGUgbmV3IGRhdGFzZXRcbm15ZGF0YSA8LSByaGNbbGlzdF9rZWVwX3Zhcl1cblxuIyBjb252ZXJ0IGNoYXJhY3RlciB2YXJpYWJsZXMgdG8gbnVtZXJpY2FsIHZhcmlhYmxlcyAoYmluYXJ5KSBmb3IgY2F0MSB2YXJpYWJsZVxuY2F0MV9vbGRfbGV2ZWxzIDwtIGMoXCJBUkZcIiwgXCJDSEZcIiwgXCJDaXJyaG9zaXNcIiwgXCJDb2xvbiBDYW5jZXJcIiwgXCJDb21hXCIsXG4gICAgICAgICAgICAgICAgICAgICBcIkNPUERcIiwgXCJMdW5nIENhbmNlclwiLCBcIk1PU0Ygdy9NYWxpZ25hbmN5XCIsIFwiTU9TRiB3L1NlcHNpc1wiKVxuY2F0MV9uZXdfbGV2ZWxzIDwtIGMoXCJBUkZcIiwgXCJDSEZcIiwgXCJDaXJyXCIsIFwiY29sY2FuXCIsIFwiQ29tYVwiLCBcIkNPUERcIiwgXCJsdW5nY2FuXCIsXG4gICAgICAgICAgICAgICAgICAgICBcIk1PU0ZcIiwgXCJzZXBzaXNcIilcbmNhdDFfb2xkX25ld19wYWlyX2xpc3QgPC0gbWFwcGx5KGMsIGNhdDFfb2xkX2xldmVscywgY2F0MV9uZXdfbGV2ZWxzLCBTSU1QTElGWSA9IEZBTFNFKVxuZm9yIChpIGluIGNhdDFfb2xkX25ld19wYWlyX2xpc3QpIHtcbiAgbXlkYXRhW2lbMl1dIDwtIGFzLm51bWVyaWMobXlkYXRhJGNhdDEgPT0gaVsxXSlcbn1cblxuIyBjb252ZXJ0IGNoYXJhY3RlciB2YXJpYWJsZXMgdG8gbnVtZXJpY2FsIHZhcmlhYmxlcyAoYmluYXJ5KSBmb3Igb3RoZXIgdmFyaWFibGVzXG5teWRhdGEkZmVtYWxlIDwtIGFzLm51bWVyaWMobXlkYXRhJHNleCA9PSBcIkZlbWFsZVwiKVxubXlkYXRhJGRpZWQgPC0gYXMubnVtZXJpYyhteWRhdGEkZGVhdGggPT0gXCJZZXNcIilcbm15ZGF0YSR0cmVhdG1lbnQgPC0gYXMubnVtZXJpYyhteWRhdGEkc3dhbmcxID09IFwiUkhDXCIpXG5cbiMgZHJvcCB1c2VkIChubyBtb3JlIG5lZWRlZCkgY29sdW1ucy92YXJzIGZyb20gbmV3IGRhdGFzZXRcbm15ZGF0YSA8LSBzdWJzZXQobXlkYXRhLCBzZWxlY3QgPSAtYyhjYXQxLCBzZXgsIGRlYXRoLCBzd2FuZzEpKVxuYGBgIn0= -->
+<pre class="r"><code>#treatment variables is swang1
+#x variables that we will use
+#cat1: primary disease category
+#age
+#sex
+#meanbp1: mean blood pressure
+
+# variables we will keep
+list_keep_var &lt;- c(&quot;cat1&quot;, &quot;death&quot;, &quot;age&quot;, &quot;sex&quot;, &quot;swang1&quot;)
+
+# create new dataset
+mydata &lt;- rhc[list_keep_var]
+
+# convert character variables to numerical variables (binary) for cat1 variable
+cat1_old_levels &lt;- c(&quot;ARF&quot;, &quot;CHF&quot;, &quot;Cirrhosis&quot;, &quot;Colon Cancer&quot;, &quot;Coma&quot;,
+                     &quot;COPD&quot;, &quot;Lung Cancer&quot;, &quot;MOSF w/Malignancy&quot;, &quot;MOSF w/Sepsis&quot;)
+cat1_new_levels &lt;- c(&quot;ARF&quot;, &quot;CHF&quot;, &quot;Cirr&quot;, &quot;colcan&quot;, &quot;Coma&quot;, &quot;COPD&quot;, &quot;lungcan&quot;,
+                     &quot;MOSF&quot;, &quot;sepsis&quot;)
+cat1_old_new_pair_list &lt;- mapply(c, cat1_old_levels, cat1_new_levels, SIMPLIFY = FALSE)
+for (i in cat1_old_new_pair_list) {
+  mydata[i[2]] &lt;- as.numeric(mydata$cat1 == i[1])
+}
+
+# convert character variables to numerical variables (binary) for other variables
+mydata$female &lt;- as.numeric(mydata$sex == &quot;Female&quot;)
+mydata$died &lt;- as.numeric(mydata$death == &quot;Yes&quot;)
+mydata$treatment &lt;- as.numeric(mydata$swang1 == &quot;RHC&quot;)
+
+# drop used (no more needed) columns/vars from new dataset
+mydata &lt;- subset(mydata, select = -c(cat1, sex, death, swang1))</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Add a new chunk by clicking the <em>Insert Chunk</em> button on the toolbar or by pressing <em>Cmd+Option+I</em>.</p>
@@ -1769,7 +1806,7 @@ summary {
 <p>The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.</p>
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiRGF0YSBFeGFtcGxlIGluIFIgLSBXZWVrIDMgLSBNYXRjaGluZyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gCgpUcnkgZXhlY3V0aW5nIHRoaXMgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpSdW4qIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ21kK1NoaWZ0K0VudGVyKi4gCgoKCmBgYHtyfQptYXRyaXgoMTo5LCBucm93ID0gMywgbmNvbCA9IDMpCmBgYAoKQWRkIGEgbmV3IGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqSW5zZXJ0IENodW5rKiBidXR0b24gb24gdGhlIHRvb2xiYXIgb3IgYnkgcHJlc3NpbmcgKkNtZCtPcHRpb24rSSouCgpXaGVuIHlvdSBzYXZlIHRoZSBub3RlYm9vaywgYW4gSFRNTCBmaWxlIGNvbnRhaW5pbmcgdGhlIGNvZGUgYW5kIG91dHB1dCB3aWxsIGJlIHNhdmVkIGFsb25nc2lkZSBpdCAoY2xpY2sgdGhlICpQcmV2aWV3KiBidXR0b24gb3IgcHJlc3MgKkNtZCtTaGlmdCtLKiB0byBwcmV2aWV3IHRoZSBIVE1MIGZpbGUpLiAKClRoZSBwcmV2aWV3IHNob3dzIHlvdSBhIHJlbmRlcmVkIEhUTUwgY29weSBvZiB0aGUgY29udGVudHMgb2YgdGhlIGVkaXRvci4gQ29uc2VxdWVudGx5LCB1bmxpa2UgKktuaXQqLCAqUHJldmlldyogZG9lcyBub3QgcnVuIGFueSBSIGNvZGUgY2h1bmtzLiBJbnN0ZWFkLCB0aGUgb3V0cHV0IG9mIHRoZSBjaHVuayB3aGVuIGl0IHdhcyBsYXN0IHJ1biBpbiB0aGUgZWRpdG9yIGlzIGRpc3BsYXllZC4=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiRGF0YSBFeGFtcGxlIGluIFIgLSBXZWVrIDMgLSBNYXRjaGluZyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gCgpUcnkgZXhlY3V0aW5nIHRoaXMgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpSdW4qIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ21kK1NoaWZ0K0VudGVyKi4gCgoKCmBgYHtyfQojIGxvYWQgcGFjYWtnZXMKbGlicmFyeSh0YWJsZW9uZSkKbGlicmFyeShNYXRjaGluZykKCiMgcmVhZCBpbiBkYXRhCmxvYWQodXJsKCJodHRwczovL2Jpb3N0YXQuYXBwLnZ1bWMub3JnL3dpa2kvcHViL01haW4vRGF0YVNldHMvcmhjLnNhdiIpKQojIHZpZXcgZGF0YQpWaWV3KHJoYykKYGBgCgoKYGBge3J9CiN0cmVhdG1lbnQgdmFyaWFibGVzIGlzIHN3YW5nMQojeCB2YXJpYWJsZXMgdGhhdCB3ZSB3aWxsIHVzZQojY2F0MTogcHJpbWFyeSBkaXNlYXNlIGNhdGVnb3J5CiNhZ2UKI3NleAojbWVhbmJwMTogbWVhbiBibG9vZCBwcmVzc3VyZQoKIyB2YXJpYWJsZXMgd2Ugd2lsbCBrZWVwCmxpc3Rfa2VlcF92YXIgPC0gYygiY2F0MSIsICJkZWF0aCIsICJhZ2UiLCAic2V4IiwgInN3YW5nMSIpCgojIGNyZWF0ZSBuZXcgZGF0YXNldApteWRhdGEgPC0gcmhjW2xpc3Rfa2VlcF92YXJdCgojIGNvbnZlcnQgY2hhcmFjdGVyIHZhcmlhYmxlcyB0byBudW1lcmljYWwgdmFyaWFibGVzIChiaW5hcnkpIGZvciBjYXQxIHZhcmlhYmxlCmNhdDFfb2xkX2xldmVscyA8LSBjKCJBUkYiLCAiQ0hGIiwgIkNpcnJob3NpcyIsICJDb2xvbiBDYW5jZXIiLCAiQ29tYSIsCiAgICAgICAgICAgICAgICAgICAgICJDT1BEIiwgIkx1bmcgQ2FuY2VyIiwgIk1PU0Ygdy9NYWxpZ25hbmN5IiwgIk1PU0Ygdy9TZXBzaXMiKQpjYXQxX25ld19sZXZlbHMgPC0gYygiQVJGIiwgIkNIRiIsICJDaXJyIiwgImNvbGNhbiIsICJDb21hIiwgIkNPUEQiLCAibHVuZ2NhbiIsCiAgICAgICAgICAgICAgICAgICAgICJNT1NGIiwgInNlcHNpcyIpCmNhdDFfb2xkX25ld19wYWlyX2xpc3QgPC0gbWFwcGx5KGMsIGNhdDFfb2xkX2xldmVscywgY2F0MV9uZXdfbGV2ZWxzLCBTSU1QTElGWSA9IEZBTFNFKQpmb3IgKGkgaW4gY2F0MV9vbGRfbmV3X3BhaXJfbGlzdCkgewogIG15ZGF0YVtpWzJdXSA8LSBhcy5udW1lcmljKG15ZGF0YSRjYXQxID09IGlbMV0pCn0KCiMgY29udmVydCBjaGFyYWN0ZXIgdmFyaWFibGVzIHRvIG51bWVyaWNhbCB2YXJpYWJsZXMgKGJpbmFyeSkgZm9yIG90aGVyIHZhcmlhYmxlcwpteWRhdGEkZmVtYWxlIDwtIGFzLm51bWVyaWMobXlkYXRhJHNleCA9PSAiRmVtYWxlIikKbXlkYXRhJGRpZWQgPC0gYXMubnVtZXJpYyhteWRhdGEkZGVhdGggPT0gIlllcyIpCm15ZGF0YSR0cmVhdG1lbnQgPC0gYXMubnVtZXJpYyhteWRhdGEkc3dhbmcxID09ICJSSEMiKQoKIyBkcm9wIHVzZWQgKG5vIG1vcmUgbmVlZGVkKSBjb2x1bW5zL3ZhcnMgZnJvbSBuZXcgZGF0YXNldApteWRhdGEgPC0gc3Vic2V0KG15ZGF0YSwgc2VsZWN0ID0gLWMoY2F0MSwgc2V4LCBkZWF0aCwgc3dhbmcxKSkKYGBgCgpBZGQgYSBuZXcgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpJbnNlcnQgQ2h1bmsqIGJ1dHRvbiBvbiB0aGUgdG9vbGJhciBvciBieSBwcmVzc2luZyAqQ21kK09wdGlvbitJKi4KCldoZW4geW91IHNhdmUgdGhlIG5vdGVib29rLCBhbiBIVE1MIGZpbGUgY29udGFpbmluZyB0aGUgY29kZSBhbmQgb3V0cHV0IHdpbGwgYmUgc2F2ZWQgYWxvbmdzaWRlIGl0IChjbGljayB0aGUgKlByZXZpZXcqIGJ1dHRvbiBvciBwcmVzcyAqQ21kK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuIAoKVGhlIHByZXZpZXcgc2hvd3MgeW91IGEgcmVuZGVyZWQgSFRNTCBjb3B5IG9mIHRoZSBjb250ZW50cyBvZiB0aGUgZWRpdG9yLiBDb25zZXF1ZW50bHksIHVubGlrZSAqS25pdCosICpQcmV2aWV3KiBkb2VzIG5vdCBydW4gYW55IFIgY29kZSBjaHVua3MuIEluc3RlYWQsIHRoZSBvdXRwdXQgb2YgdGhlIGNodW5rIHdoZW4gaXQgd2FzIGxhc3QgcnVuIGluIHRoZSBlZGl0b3IgaXMgZGlzcGxheWVkLg==</div>
 
 
 

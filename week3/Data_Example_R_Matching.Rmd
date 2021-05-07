@@ -10,7 +10,48 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 
 
 ```{r}
-matrix(1:9, nrow = 3, ncol = 3)
+# load pacakges
+library(tableone)
+library(Matching)
+
+# read in data
+load(url("https://biostat.app.vumc.org/wiki/pub/Main/DataSets/rhc.sav"))
+# view data
+View(rhc)
+```
+
+
+```{r}
+#treatment variables is swang1
+#x variables that we will use
+#cat1: primary disease category
+#age
+#sex
+#meanbp1: mean blood pressure
+
+# variables we will keep
+list_keep_var <- c("cat1", "death", "age", "sex", "swang1")
+
+# create new dataset
+mydata <- rhc[list_keep_var]
+
+# convert character variables to numerical variables (binary) for cat1 variable
+cat1_old_levels <- c("ARF", "CHF", "Cirrhosis", "Colon Cancer", "Coma",
+                     "COPD", "Lung Cancer", "MOSF w/Malignancy", "MOSF w/Sepsis")
+cat1_new_levels <- c("ARF", "CHF", "Cirr", "colcan", "Coma", "COPD", "lungcan",
+                     "MOSF", "sepsis")
+cat1_old_new_pair_list <- mapply(c, cat1_old_levels, cat1_new_levels, SIMPLIFY = FALSE)
+for (i in cat1_old_new_pair_list) {
+  mydata[i[2]] <- as.numeric(mydata$cat1 == i[1])
+}
+
+# convert character variables to numerical variables (binary) for other variables
+mydata$female <- as.numeric(mydata$sex == "Female")
+mydata$died <- as.numeric(mydata$death == "Yes")
+mydata$treatment <- as.numeric(mydata$swang1 == "RHC")
+
+# drop used (no more needed) columns/vars from new dataset
+mydata <- subset(mydata, select = -c(cat1, sex, death, swang1))
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
