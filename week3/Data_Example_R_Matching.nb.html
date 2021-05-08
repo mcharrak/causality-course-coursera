@@ -1753,12 +1753,24 @@ summary {
 <p>Try executing this chunk by clicking the <em>Run</em> button within the chunk or by placing your cursor inside it and pressing <em>Cmd+Shift+Enter</em>.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBsb2FkIHBhY2FrZ2VzXG5saWJyYXJ5KHRhYmxlb25lKVxubGlicmFyeShNYXRjaGluZylcblxuIyByZWFkIGluIGRhdGFcbmxvYWQodXJsKFwiaHR0cHM6Ly9iaW9zdGF0LmFwcC52dW1jLm9yZy93aWtpL3B1Yi9NYWluL0RhdGFTZXRzL3JoYy5zYXZcIikpXG4jIHZpZXcgZGF0YVxuVmlldyhyaGMpXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBsb2FkIHBhY2FrZ2VzXG5saWJyYXJ5KHRhYmxlb25lKVxubGlicmFyeShNYXRjaGluZylcbmBgYCJ9 -->
 <pre class="r"><code># load pacakges
 library(tableone)
-library(Matching)
-
-# read in data
+library(Matching)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoicGFja2FnZSDigJhNYXRjaGluZ+KAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDMuNi4yTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBNQVNTXG4jIyBcbiMjICBNYXRjaGluZyAoVmVyc2lvbiA0LjktOSwgQnVpbGQgRGF0ZTogMjAyMS0wMy0xNSlcbiMjICBTZWUgaHR0cDovL3Nla2hvbi5iZXJrZWxleS5lZHUvbWF0Y2hpbmcgZm9yIGFkZGl0aW9uYWwgZG9jdW1lbnRhdGlvbi5cbiMjICBQbGVhc2UgY2l0ZSBzb2Z0d2FyZSBhczpcbiMjICAgSmFzamVldCBTLiBTZWtob24uIDIwMTEuIGBgTXVsdGl2YXJpYXRlIGFuZCBQcm9wZW5zaXR5IFNjb3JlIE1hdGNoaW5nXG4jIyAgIFNvZnR3YXJlIHdpdGggQXV0b21hdGVkIEJhbGFuY2UgT3B0aW1pemF0aW9uOiBUaGUgTWF0Y2hpbmcgcGFja2FnZSBmb3IgUi4nJ1xuIyMgICBKb3VybmFsIG9mIFN0YXRpc3RpY2FsIFNvZnR3YXJlLCA0Mig3KTogMS01Mi4gXG4jI1xuIn0= -->
+<pre><code>package ‘Matching’ was built under R version 3.6.2Loading required package: MASS
+## 
+##  Matching (Version 4.9-9, Build Date: 2021-03-15)
+##  See http://sekhon.berkeley.edu/matching for additional documentation.
+##  Please cite software as:
+##   Jasjeet S. Sekhon. 2011. ``Multivariate and Propensity Score Matching
+##   Software with Automated Balance Optimization: The Matching package for R.''
+##   Journal of Statistical Software, 42(7): 1-52. 
+##</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyByZWFkIGluIGRhdGFcbmxvYWQodXJsKFwiaHR0cHM6Ly9iaW9zdGF0LmFwcC52dW1jLm9yZy93aWtpL3B1Yi9NYWluL0RhdGFTZXRzL3JoYy5zYXZcIikpXG4jIHZpZXcgZGF0YVxuVmlldyhyaGMpXG5gYGAifQ== -->
+<pre class="r"><code># read in data
 load(url(&quot;https://biostat.app.vumc.org/wiki/pub/Main/DataSets/rhc.sav&quot;))
 # view data
 View(rhc)</code></pre>
@@ -1767,7 +1779,7 @@ View(rhc)</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3RyZWF0bWVudCB2YXJpYWJsZXMgaXMgc3dhbmcxXG4jeCB2YXJpYWJsZXMgdGhhdCB3ZSB3aWxsIHVzZVxuI2NhdDE6IHByaW1hcnkgZGlzZWFzZSBjYXRlZ29yeVxuI2FnZVxuI3NleFxuI21lYW5icDE6IG1lYW4gYmxvb2QgcHJlc3N1cmVcblxuIyB2YXJpYWJsZXMgd2Ugd2lsbCBrZWVwXG5saXN0X2tlZXBfdmFyIDwtIGMoXCJjYXQxXCIsIFwiZGVhdGhcIiwgXCJhZ2VcIiwgXCJzZXhcIiwgXCJzd2FuZzFcIilcblxuIyBjcmVhdGUgbmV3IGRhdGFzZXRcbm15ZGF0YSA8LSByaGNbbGlzdF9rZWVwX3Zhcl1cblxuIyBjb252ZXJ0IGNoYXJhY3RlciB2YXJpYWJsZXMgdG8gbnVtZXJpY2FsIHZhcmlhYmxlcyAoYmluYXJ5KSBmb3IgY2F0MSB2YXJpYWJsZVxuY2F0MV9vbGRfbGV2ZWxzIDwtIGMoXCJBUkZcIiwgXCJDSEZcIiwgXCJDaXJyaG9zaXNcIiwgXCJDb2xvbiBDYW5jZXJcIiwgXCJDb21hXCIsXG4gICAgICAgICAgICAgICAgICAgICBcIkNPUERcIiwgXCJMdW5nIENhbmNlclwiLCBcIk1PU0Ygdy9NYWxpZ25hbmN5XCIsIFwiTU9TRiB3L1NlcHNpc1wiKVxuY2F0MV9uZXdfbGV2ZWxzIDwtIGMoXCJBUkZcIiwgXCJDSEZcIiwgXCJDaXJyXCIsIFwiY29sY2FuXCIsIFwiQ29tYVwiLCBcIkNPUERcIiwgXCJsdW5nY2FuXCIsXG4gICAgICAgICAgICAgICAgICAgICBcIk1PU0ZcIiwgXCJzZXBzaXNcIilcbmNhdDFfb2xkX25ld19wYWlyX2xpc3QgPC0gbWFwcGx5KGMsIGNhdDFfb2xkX2xldmVscywgY2F0MV9uZXdfbGV2ZWxzLCBTSU1QTElGWSA9IEZBTFNFKVxuZm9yIChpIGluIGNhdDFfb2xkX25ld19wYWlyX2xpc3QpIHtcbiAgbXlkYXRhW2lbMl1dIDwtIGFzLm51bWVyaWMobXlkYXRhJGNhdDEgPT0gaVsxXSlcbn1cblxuIyBjb252ZXJ0IGNoYXJhY3RlciB2YXJpYWJsZXMgdG8gbnVtZXJpY2FsIHZhcmlhYmxlcyAoYmluYXJ5KSBmb3Igb3RoZXIgdmFyaWFibGVzXG5teWRhdGEkZmVtYWxlIDwtIGFzLm51bWVyaWMobXlkYXRhJHNleCA9PSBcIkZlbWFsZVwiKVxubXlkYXRhJGRpZWQgPC0gYXMubnVtZXJpYyhteWRhdGEkZGVhdGggPT0gXCJZZXNcIilcbm15ZGF0YSR0cmVhdG1lbnQgPC0gYXMubnVtZXJpYyhteWRhdGEkc3dhbmcxID09IFwiUkhDXCIpXG5cbiMgZHJvcCB1c2VkIChubyBtb3JlIG5lZWRlZCkgY29sdW1ucy92YXJzIGZyb20gbmV3IGRhdGFzZXRcbm15ZGF0YSA8LSBzdWJzZXQobXlkYXRhLCBzZWxlY3QgPSAtYyhjYXQxLCBzZXgsIGRlYXRoLCBzd2FuZzEpKVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3RyZWF0bWVudCB2YXJpYWJsZXMgaXMgc3dhbmcxXG4jeCB2YXJpYWJsZXMgdGhhdCB3ZSB3aWxsIHVzZVxuI2NhdDE6IHByaW1hcnkgZGlzZWFzZSBjYXRlZ29yeVxuI2FnZVxuI3NleFxuI21lYW5icDE6IG1lYW4gYmxvb2QgcHJlc3N1cmVcblxuIyB2YXJpYWJsZXMgd2Ugd2lsbCBrZWVwXG5saXN0X2tlZXBfdmFyIDwtIGMoXCJjYXQxXCIsIFwiZGVhdGhcIiwgXCJhZ2VcIiwgXCJzZXhcIiwgXCJtZWFuYnAxXCIsIFwic3dhbmcxXCIpXG5cbiMgY3JlYXRlIG5ldyBkYXRhc2V0XG5teWRhdGEgPC0gcmhjW2xpc3Rfa2VlcF92YXJdXG5cbiMgY29udmVydCBjaGFyYWN0ZXIgdmFyaWFibGVzIHRvIG51bWVyaWNhbCB2YXJpYWJsZXMgKGJpbmFyeSkgZm9yIGNhdDEgdmFyaWFibGVcbmNhdDFfb2xkX2xldmVscyA8LSBjKFwiQVJGXCIsIFwiQ0hGXCIsIFwiQ2lycmhvc2lzXCIsIFwiQ29sb24gQ2FuY2VyXCIsIFwiQ29tYVwiLFxuICAgICAgICAgICAgICAgICAgICAgXCJDT1BEXCIsIFwiTHVuZyBDYW5jZXJcIiwgXCJNT1NGIHcvTWFsaWduYW5jeVwiLCBcIk1PU0Ygdy9TZXBzaXNcIilcbmNhdDFfbmV3X2xldmVscyA8LSBjKFwiQVJGXCIsIFwiQ0hGXCIsIFwiQ2lyclwiLCBcImNvbGNhblwiLCBcIkNvbWFcIiwgXCJDT1BEXCIsIFwibHVuZ2NhblwiLFxuICAgICAgICAgICAgICAgICAgICAgXCJNT1NGXCIsIFwic2Vwc2lzXCIpXG5jYXQxX29sZF9uZXdfcGFpcl9saXN0IDwtIG1hcHBseShjLCBjYXQxX29sZF9sZXZlbHMsIGNhdDFfbmV3X2xldmVscywgU0lNUExJRlkgPSBGQUxTRSlcbmZvciAoaSBpbiBjYXQxX29sZF9uZXdfcGFpcl9saXN0KSB7XG4gIG15ZGF0YVtpWzJdXSA8LSBhcy5udW1lcmljKG15ZGF0YSRjYXQxID09IGlbMV0pXG59XG5cbiMgY29udmVydCBjaGFyYWN0ZXIgdmFyaWFibGVzIHRvIG51bWVyaWNhbCB2YXJpYWJsZXMgKGJpbmFyeSkgZm9yIG90aGVyIHZhcmlhYmxlc1xubXlkYXRhJGZlbWFsZSA8LSBhcy5udW1lcmljKG15ZGF0YSRzZXggPT0gXCJGZW1hbGVcIilcbm15ZGF0YSRkaWVkIDwtIGFzLm51bWVyaWMobXlkYXRhJGRlYXRoID09IFwiWWVzXCIpXG5teWRhdGEkdHJlYXRtZW50IDwtIGFzLm51bWVyaWMobXlkYXRhJHN3YW5nMSA9PSBcIlJIQ1wiKVxuXG4jIGRyb3AgdXNlZCAobm8gbW9yZSBuZWVkZWQpIGNvbHVtbnMvdmFycyBmcm9tIG5ldyBkYXRhc2V0XG5teWRhdGEgPC0gc3Vic2V0KG15ZGF0YSwgc2VsZWN0ID0gLWMoY2F0MSwgc2V4LCBkZWF0aCwgc3dhbmcxKSlcbmBgYCJ9 -->
 <pre class="r"><code>#treatment variables is swang1
 #x variables that we will use
 #cat1: primary disease category
@@ -1776,7 +1788,7 @@ View(rhc)</code></pre>
 #meanbp1: mean blood pressure
 
 # variables we will keep
-list_keep_var &lt;- c(&quot;cat1&quot;, &quot;death&quot;, &quot;age&quot;, &quot;sex&quot;, &quot;swang1&quot;)
+list_keep_var &lt;- c(&quot;cat1&quot;, &quot;death&quot;, &quot;age&quot;, &quot;sex&quot;, &quot;meanbp1&quot;, &quot;swang1&quot;)
 
 # create new dataset
 mydata &lt;- rhc[list_keep_var]
@@ -1801,12 +1813,142 @@ mydata &lt;- subset(mydata, select = -c(cat1, sex, death, swang1))</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjb3ZhcmlhdGVzIFggd2Ugd2lsbCB1c2UgKGFsbCBidXQgb3V0Y29tZSBZIGFuZCB0cmVhdG1lbnQgQSlcbnh2YXJzIDwtIGMoXCJBUkZcIiwgXCJDSEZcIiwgXCJDaXJyXCIsIFwiY29sY2FuXCIsIFwiQ29tYVwiLCBcImx1bmdjYW5cIiwgXCJNT1NGXCIsIFwic2Vwc2lzXCIsIFwiYWdlXCIsIFwiZmVtYWxlXCIsIFwibWVhbmJwMVwiKVxuXG4jIGNyZWF0ZSBUYWJsZSAxIGluIHByZS1tYXRjaGluZyBjYXNlXG50YWJsZTEgPC0gQ3JlYXRlVGFibGVPbmUodmFycyA9IHh2YXJzLCBzdHJhdGEgPSBcInRyZWF0bWVudFwiICwgZGF0YSA9IG15ZGF0YSwgdGVzdCA9IEZBTFNFKSAjIHRlc3QgPSBGQUxTRSBmb3Igbm90IGRvaW5nIGEgc2lnbmlmaWNhbmNlIHRlc3QgYmV0d2VlbiBncm91cHNcbnByaW50KHRhYmxlMSwgc21kID0gVFJVRSkgIyBzdGFuZGFyZGl6ZXMgbWVhbiBkaWZmZXJlbmNlIGJldHdlZW4gZ3JvdXBzIGNvbXB1dGVkXG5gYGAifQ== -->
+<pre class="r"><code># covariates X we will use (all but outcome Y and treatment A)
+xvars &lt;- c(&quot;ARF&quot;, &quot;CHF&quot;, &quot;Cirr&quot;, &quot;colcan&quot;, &quot;Coma&quot;, &quot;lungcan&quot;, &quot;MOSF&quot;, &quot;sepsis&quot;, &quot;age&quot;, &quot;female&quot;, &quot;meanbp1&quot;)
+
+# create Table 1 in pre-matching case
+table1 &lt;- CreateTableOne(vars = xvars, strata = &quot;treatment&quot; , data = mydata, test = FALSE) # test = FALSE for not doing a significance test between groups
+print(table1, smd = TRUE) # standardizes mean difference between groups computed</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgICAgICAgICAgU3RyYXRpZmllZCBieSB0cmVhdG1lbnRcbiAgICAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgIDEgICAgICAgICAgICAgU01EICAgXG4gIG4gICAgICAgICAgICAgICAgICAgIDM1NTEgICAgICAgICAgMjE4NCAgICAgICAgICAgICAgIFxuICBBUkYgKG1lYW4gKFNEKSkgICAgICAwLjQ1ICgwLjUwKSAgIDAuNDIgKDAuNDkpICAgMC4wNTlcbiAgQ0hGIChtZWFuIChTRCkpICAgICAgMC4wNyAoMC4yNSkgICAwLjEwICgwLjI5KSAgIDAuMDk1XG4gIENpcnIgKG1lYW4gKFNEKSkgICAgIDAuMDUgKDAuMjIpICAgMC4wMiAoMC4xNSkgICAwLjE0NVxuICBjb2xjYW4gKG1lYW4gKFNEKSkgICAwLjAwICgwLjA0KSAgIDAuMDAgKDAuMDIpICAgMC4wMzhcbiAgQ29tYSAobWVhbiAoU0QpKSAgICAgMC4xMCAoMC4yOSkgICAwLjA0ICgwLjIwKSAgIDAuMjA3XG4gIGx1bmdjYW4gKG1lYW4gKFNEKSkgIDAuMDEgKDAuMTApICAgMC4wMCAoMC4wNSkgICAwLjA5NVxuICBNT1NGIChtZWFuIChTRCkpICAgICAwLjA3ICgwLjI1KSAgIDAuMDcgKDAuMjYpICAgMC4wMThcbiAgc2Vwc2lzIChtZWFuIChTRCkpICAgMC4xNSAoMC4zNikgICAwLjMyICgwLjQ3KSAgIDAuNDE1XG4gIGFnZSAobWVhbiAoU0QpKSAgICAgNjEuNzYgKDE3LjI5KSA2MC43NSAoMTUuNjMpICAwLjA2MVxuICBmZW1hbGUgKG1lYW4gKFNEKSkgICAwLjQ2ICgwLjUwKSAgIDAuNDEgKDAuNDkpICAgMC4wOTNcbiAgbWVhbmJwMSAobWVhbiAoU0QpKSA4NC44NyAoMzguODcpIDY4LjIwICgzNC4yNCkgIDAuNDU1XG4ifQ== -->
+<pre><code>                     Stratified by treatment
+                      0             1             SMD   
+  n                    3551          2184               
+  ARF (mean (SD))      0.45 (0.50)   0.42 (0.49)   0.059
+  CHF (mean (SD))      0.07 (0.25)   0.10 (0.29)   0.095
+  Cirr (mean (SD))     0.05 (0.22)   0.02 (0.15)   0.145
+  colcan (mean (SD))   0.00 (0.04)   0.00 (0.02)   0.038
+  Coma (mean (SD))     0.10 (0.29)   0.04 (0.20)   0.207
+  lungcan (mean (SD))  0.01 (0.10)   0.00 (0.05)   0.095
+  MOSF (mean (SD))     0.07 (0.25)   0.07 (0.26)   0.018
+  sepsis (mean (SD))   0.15 (0.36)   0.32 (0.47)   0.415
+  age (mean (SD))     61.76 (17.29) 60.75 (15.63)  0.061
+  female (mean (SD))   0.46 (0.50)   0.41 (0.49)   0.093
+  meanbp1 (mean (SD)) 84.87 (38.87) 68.20 (34.24)  0.455</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBub3cgd2UgcGVyZm9ybSBncmVlZHkgbWF0Y2hpbmcgb24gdGhlIE1haGFsYW5vYmlzIGRpc3RhbmNlIHRvIGxvd2VyIHRoZSBzbWQgYW5kIHRoZXJlYnkgaW1wcm92ZSBiYWxhbmNlIG9mIGNvdmFyaWF0ZXMgWCBiZXR3ZWVuIHRoZSB0cmVhdG1lbnQgZ3JvdXBzXG5ncmVlZHltYXRjaCA8LSBNYXRjaChUciA9IG15ZGF0YSR0cmVhdG1lbnQsIFggPSBteWRhdGFbeHZhcnNdLCBNID0gMSkgIyBNIHNwZWNpZmllcyBtYXRjaGluZy10eXBlIGkuZS4gMS10by1NXG5tYXRjaGVkIDwtIG15ZGF0YVtjKGdyZWVkeW1hdGNoJGluZGV4LnRyZWF0ZWQsIGdyZWVkeW1hdGNoJGluZGV4LmNvbnRyb2wpLF1cbmBgYCJ9 -->
+<pre class="r"><code># now we perform greedy matching on the Mahalanobis distance to lower the smd and thereby improve balance of covariates X between the treatment groups
+greedymatch &lt;- Match(Tr = mydata$treatment, X = mydata[xvars], M = 1) # M specifies matching-type i.e. 1-to-M
+matched &lt;- mydata[c(greedymatch$index.treated, greedymatch$index.control),]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjcmVhdGUgVGFibGUgMSBpbiBwb3N0LW1hdGNoaW5nIGNhc2Vcbm1hdGNoZWR0YWJsZTEgPC0gQ3JlYXRlVGFibGVPbmUodmFycyA9IHh2YXJzLCBzdHJhdGEgPSBcInRyZWF0bWVudFwiICwgZGF0YSA9IG1hdGNoZWQsIHRlc3QgPSBGQUxTRSlcbnByaW50KG1hdGNoZWR0YWJsZTEsIHNtZCA9IFRSVUUpICMgd2Ugb2JzZXJ2ZSBiYWxhbmNlIGJldHdlZW4gdGhlIHRyZWF0bWVudCBncm91cHMgd2l0aCBhbGwgc21kIGZhciBiZWxvdyB0aGUgY3JpdGljYWwgdGhyZXNob2xkIG9mIDAuMVxuYGBgIn0= -->
+<pre class="r"><code># create Table 1 in post-matching case
+matchedtable1 &lt;- CreateTableOne(vars = xvars, strata = &quot;treatment&quot; , data = matched, test = FALSE)
+print(matchedtable1, smd = TRUE) # we observe balance between the treatment groups with all smd far below the critical threshold of 0.1</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgICAgICAgICAgU3RyYXRpZmllZCBieSB0cmVhdG1lbnRcbiAgICAgICAgICAgICAgICAgICAgICAwICAgICAgICAgICAgIDEgICAgICAgICAgICAgU01EICAgXG4gIG4gICAgICAgICAgICAgICAgICAgIDIxODYgICAgICAgICAgMjE4NiAgICAgICAgICAgICAgIFxuICBBUkYgKG1lYW4gKFNEKSkgICAgICAwLjQyICgwLjQ5KSAgIDAuNDIgKDAuNDkpICA8MC4wMDFcbiAgQ0hGIChtZWFuIChTRCkpICAgICAgMC4xMCAoMC4yOSkgICAwLjEwICgwLjI5KSAgPDAuMDAxXG4gIENpcnIgKG1lYW4gKFNEKSkgICAgIDAuMDIgKDAuMTUpICAgMC4wMiAoMC4xNSkgIDwwLjAwMVxuICBjb2xjYW4gKG1lYW4gKFNEKSkgICAwLjAwICgwLjAyKSAgIDAuMDAgKDAuMDIpICA8MC4wMDFcbiAgQ29tYSAobWVhbiAoU0QpKSAgICAgMC4wNCAoMC4yMCkgICAwLjA0ICgwLjIwKSAgPDAuMDAxXG4gIGx1bmdjYW4gKG1lYW4gKFNEKSkgIDAuMDAgKDAuMDUpICAgMC4wMCAoMC4wNSkgIDwwLjAwMVxuICBNT1NGIChtZWFuIChTRCkpICAgICAwLjA3ICgwLjI2KSAgIDAuMDcgKDAuMjYpICA8MC4wMDFcbiAgc2Vwc2lzIChtZWFuIChTRCkpICAgMC4zMiAoMC40NykgICAwLjMyICgwLjQ3KSAgPDAuMDAxXG4gIGFnZSAobWVhbiAoU0QpKSAgICAgNjAuODQgKDE1LjU0KSA2MC43NyAoMTUuNjQpICAwLjAwNVxuICBmZW1hbGUgKG1lYW4gKFNEKSkgICAwLjQxICgwLjQ5KSAgIDAuNDEgKDAuNDkpICA8MC4wMDFcbiAgbWVhbmJwMSAobWVhbiAoU0QpKSA2OC4yNiAoMzMuMjMpIDY4LjE5ICgzNC4yMykgIDAuMDAyXG4ifQ== -->
+<pre><code>                     Stratified by treatment
+                      0             1             SMD   
+  n                    2186          2186               
+  ARF (mean (SD))      0.42 (0.49)   0.42 (0.49)  &lt;0.001
+  CHF (mean (SD))      0.10 (0.29)   0.10 (0.29)  &lt;0.001
+  Cirr (mean (SD))     0.02 (0.15)   0.02 (0.15)  &lt;0.001
+  colcan (mean (SD))   0.00 (0.02)   0.00 (0.02)  &lt;0.001
+  Coma (mean (SD))     0.04 (0.20)   0.04 (0.20)  &lt;0.001
+  lungcan (mean (SD))  0.00 (0.05)   0.00 (0.05)  &lt;0.001
+  MOSF (mean (SD))     0.07 (0.26)   0.07 (0.26)  &lt;0.001
+  sepsis (mean (SD))   0.32 (0.47)   0.32 (0.47)  &lt;0.001
+  age (mean (SD))     60.84 (15.54) 60.77 (15.64)  0.005
+  female (mean (SD))   0.41 (0.49)   0.41 (0.49)  &lt;0.001
+  meanbp1 (mean (SD)) 68.26 (33.23) 68.19 (34.23)  0.002</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBvdXRjb21lIGFuYWx5c2lzXG4jIHBlcmZvcm0gYSBwYWlyZWQgdC10ZXN0IHRvIGNvbXB1dGUgY2F1c2FsIHJpc2sgZGlmZmVyZW5jZVxueV90cnQgPC0gbWF0Y2hlZFttYXRjaGVkJHRyZWF0bWVudCA9PSAxLCBdJGRpZWRcbnlfY29uIDwtIG1hdGNoZWRbbWF0Y2hlZCR0cmVhdG1lbnQgPT0gMCwgXSRkaWVkXG5cbiMgcGFpcndpc2UgZGlmZmVyZW5jZVxuZGlmZnkgPC0geV90cnQgLSB5X2NvblxuXG4jIHBhaXJlZCB0LXRlc3RcbnQudGVzdChkaWZmeSkgIyB0aGUgcG9pbnQgZXN0aW1hdGUgb2YgdGhlIGNhdXNhbCByaXNrIGRpZmZlcmVuY2UgaXMgMC40NTsgdGhlIHAtdmFsdWUgaXMgMC4wMDA4Nywgd2UgcmVqZWN0IG51bGwgaHlwb3RoZXNpcyB0aGF0IHJpc2sgZGlmZmVyZW5jZSBpcyAwLjAwXG5gYGAifQ== -->
+<pre class="r"><code># outcome analysis
+# perform a paired t-test to compute causal risk difference
+y_trt &lt;- matched[matched$treatment == 1, ]$died
+y_con &lt;- matched[matched$treatment == 0, ]$died
+
+# pairwise difference
+diffy &lt;- y_trt - y_con
+
+# paired t-test
+t.test(diffy) # the point estimate of the causal risk difference is 0.45; the p-value is 0.00087, we reject null hypothesis that risk difference is 0.00</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5cdE9uZSBTYW1wbGUgdC10ZXN0XG5cbmRhdGE6ICBkaWZmeVxudCA9IDMuMzMxOCwgZGYgPSAyMTg1LCBwLXZhbHVlID0gMC4wMDA4NzczXG5hbHRlcm5hdGl2ZSBoeXBvdGhlc2lzOiB0cnVlIG1lYW4gaXMgbm90IGVxdWFsIHRvIDBcbjk1IHBlcmNlbnQgY29uZmlkZW5jZSBpbnRlcnZhbDpcbiAwLjAxODYzMTkzIDAuMDcxOTQ0NDdcbnNhbXBsZSBlc3RpbWF0ZXM6XG5tZWFuIG9mIHggXG4wLjA0NTI4ODIgXG4ifQ== -->
+<pre><code>
+    One Sample t-test
+
+data:  diffy
+t = 3.3318, df = 2185, p-value = 0.0008773
+alternative hypothesis: true mean is not equal to 0
+95 percent confidence interval:
+ 0.01863193 0.07194447
+sample estimates:
+mean of x 
+0.0452882 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBhbHRlcm5hdGl2ZWx5IGNvbXB1dGUgZGlmZmVyZW5jZSBpbiBkZWF0aF9wcm9iIGJldHdlZW4gdHJlYXRlZCBhbmQgY29udHJvbFxudHJ0X2RlYXRocyA8LSBzdW0obXlkYXRhW2MoZ3JlZWR5bWF0Y2gkaW5kZXgudHJlYXRlZCksXSRkaWVkID09IDEpXG5jb3VudF90cnQgPC0gbGVuZ3RoKGdyZWVkeW1hdGNoJGluZGV4LnRyZWF0ZWQpXG5jb25fZGVhdGhzIDwtIHN1bShteWRhdGFbYyhncmVlZHltYXRjaCRpbmRleC5jb250cm9sKSxdJGRpZWQgPT0gMSlcbmNvdW50X2NvbiA8LSBsZW5ndGgoZ3JlZWR5bWF0Y2gkaW5kZXguY29udHJvbClcbnBfZGVhdGhfdHJ0IDwtICh0cnRfZGVhdGhzL2NvdW50X3RydClcbnBfZGVhdGhfY29uIDwtIChjb25fZGVhdGhzL2NvdW50X2NvbilcbnJpc2tfZGlmZiA8LSAgcF9kZWF0aF90cnQgLSBwX2RlYXRoX2NvblxuY2F0KFwiRGlmZmVyZW5jZSBpbiBwcm9iLiBvZiBkZWF0aCBpZiBldmVyeW9uZSByZWNlaXZlZCB0cmVhdG1lbnQgKFJIQykgdnMgaWYgbm8gb25lIHJlY2VpdmVkIHRyZWF0bWVudCAoUkhDKSBpczpcIiwgcmlza19kaWZmLFwiLlwiKVxuYGBgIn0= -->
+<pre class="r"><code># alternatively compute difference in death_prob between treated and control
+trt_deaths &lt;- sum(mydata[c(greedymatch$index.treated),]$died == 1)
+count_trt &lt;- length(greedymatch$index.treated)
+con_deaths &lt;- sum(mydata[c(greedymatch$index.control),]$died == 1)
+count_con &lt;- length(greedymatch$index.control)
+p_death_trt &lt;- (trt_deaths/count_trt)
+p_death_con &lt;- (con_deaths/count_con)
+risk_diff &lt;-  p_death_trt - p_death_con
+cat(&quot;Difference in prob. of death if everyone received treatment (RHC) vs if no one received treatment (RHC) is:&quot;, risk_diff,&quot;.&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRGlmZmVyZW5jZSBpbiBwcm9iLiBvZiBkZWF0aCBpZiBldmVyeW9uZSByZWNlaXZlZCB0cmVhdG1lbnQgKFJIQykgdnMgaWYgbm8gb25lIHJlY2VpdmVkIHRyZWF0bWVudCAoUkhDKSBpczogMC4wNDUyODgyIC5cbiJ9 -->
+<pre><code>Difference in prob. of death if everyone received treatment (RHC) vs if no one received treatment (RHC) is: 0.0452882 .</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBhbHRlcm5hdGl2ZWx5IHdlIGNvdWxkIGNhcnJ5IG91dCBvdXRjb21lIGFuYWx5c2lzIGJhc2VkIG9uIGEgTWNOZW1hciB0ZXN0IHVzaW5nIGNvdW50IGRhdGEgaW5zdGVhZCBvZiByYXcgdmFsdWVzXG5cbnRhYmxlKHlfdHJ0LHlfY29uKSAjIGRpc2NvcmRhbnQgcGFyaXM6ICh0cnQ9MSxjb249MCkgIz00OTMsICh0cnQ9MSxjb249MCkgIz00OTNkZWF0aHMsICh0cnQ9MCxjb249MSkgIz0zOTRkZWF0aHMgLT4gYmlnZ2VyIG51bWJlciB0aGF0IHRyZWF0ZWQgcGVyc29uIGRpZXNcbmBgYCJ9 -->
+<pre class="r"><code># alternatively we could carry out outcome analysis based on a McNemar test using count data instead of raw values
+
+table(y_trt,y_con) # discordant paris: (trt=1,con=0) #=493, (trt=1,con=0) #=493deaths, (trt=0,con=1) #=394deaths -&gt; bigger number that treated person dies</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICB5X2NvblxueV90cnQgICAwICAgMVxuICAgIDAgMzA1IDM5NFxuICAgIDEgNDkzIDk5NFxuIn0= -->
+<pre><code>     y_con
+y_trt   0   1
+    0 305 394
+    1 493 994</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWNuZW1hci50ZXN0KHggPSBtYXRyaXgoZGF0YSA9IGMoMzA1LDM5NCw0OTMsOTk0KSwgbnJvdyA9IDIsIG5jb2wgPSAyKSlcbmBgYCJ9 -->
+<pre class="r"><code>mcnemar.test(x = matrix(data = c(305,394,493,994), nrow = 2, ncol = 2))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5cdE1jTmVtYXIncyBDaGktc3F1YXJlZCB0ZXN0IHdpdGggY29udGludWl0eSBjb3JyZWN0aW9uXG5cbmRhdGE6ICBtYXRyaXgoZGF0YSA9IGMoMzA1LCAzOTQsIDQ5MywgOTk0KSwgbnJvdyA9IDIsIG5jb2wgPSAyKVxuTWNOZW1hcidzIGNoaS1zcXVhcmVkID0gMTAuODI4LCBkZiA9IDEsIHAtdmFsdWUgPSAwLjAwMVxuIn0= -->
+<pre><code>
+    McNemar's Chi-squared test with continuity correction
+
+data:  matrix(data = c(305, 394, 493, 994), nrow = 2, ncol = 2)
+McNemar's chi-squared = 10.828, df = 1, p-value = 0.001</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <p>Add a new chunk by clicking the <em>Insert Chunk</em> button on the toolbar or by pressing <em>Cmd+Option+I</em>.</p>
 <p>When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the <em>Preview</em> button or press <em>Cmd+Shift+K</em> to preview the HTML file).</p>
 <p>The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.</p>
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiRGF0YSBFeGFtcGxlIGluIFIgLSBXZWVrIDMgLSBNYXRjaGluZyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gCgpUcnkgZXhlY3V0aW5nIHRoaXMgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpSdW4qIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ21kK1NoaWZ0K0VudGVyKi4gCgoKCmBgYHtyfQojIGxvYWQgcGFjYWtnZXMKbGlicmFyeSh0YWJsZW9uZSkKbGlicmFyeShNYXRjaGluZykKCiMgcmVhZCBpbiBkYXRhCmxvYWQodXJsKCJodHRwczovL2Jpb3N0YXQuYXBwLnZ1bWMub3JnL3dpa2kvcHViL01haW4vRGF0YVNldHMvcmhjLnNhdiIpKQojIHZpZXcgZGF0YQpWaWV3KHJoYykKYGBgCgoKYGBge3J9CiN0cmVhdG1lbnQgdmFyaWFibGVzIGlzIHN3YW5nMQojeCB2YXJpYWJsZXMgdGhhdCB3ZSB3aWxsIHVzZQojY2F0MTogcHJpbWFyeSBkaXNlYXNlIGNhdGVnb3J5CiNhZ2UKI3NleAojbWVhbmJwMTogbWVhbiBibG9vZCBwcmVzc3VyZQoKIyB2YXJpYWJsZXMgd2Ugd2lsbCBrZWVwCmxpc3Rfa2VlcF92YXIgPC0gYygiY2F0MSIsICJkZWF0aCIsICJhZ2UiLCAic2V4IiwgInN3YW5nMSIpCgojIGNyZWF0ZSBuZXcgZGF0YXNldApteWRhdGEgPC0gcmhjW2xpc3Rfa2VlcF92YXJdCgojIGNvbnZlcnQgY2hhcmFjdGVyIHZhcmlhYmxlcyB0byBudW1lcmljYWwgdmFyaWFibGVzIChiaW5hcnkpIGZvciBjYXQxIHZhcmlhYmxlCmNhdDFfb2xkX2xldmVscyA8LSBjKCJBUkYiLCAiQ0hGIiwgIkNpcnJob3NpcyIsICJDb2xvbiBDYW5jZXIiLCAiQ29tYSIsCiAgICAgICAgICAgICAgICAgICAgICJDT1BEIiwgIkx1bmcgQ2FuY2VyIiwgIk1PU0Ygdy9NYWxpZ25hbmN5IiwgIk1PU0Ygdy9TZXBzaXMiKQpjYXQxX25ld19sZXZlbHMgPC0gYygiQVJGIiwgIkNIRiIsICJDaXJyIiwgImNvbGNhbiIsICJDb21hIiwgIkNPUEQiLCAibHVuZ2NhbiIsCiAgICAgICAgICAgICAgICAgICAgICJNT1NGIiwgInNlcHNpcyIpCmNhdDFfb2xkX25ld19wYWlyX2xpc3QgPC0gbWFwcGx5KGMsIGNhdDFfb2xkX2xldmVscywgY2F0MV9uZXdfbGV2ZWxzLCBTSU1QTElGWSA9IEZBTFNFKQpmb3IgKGkgaW4gY2F0MV9vbGRfbmV3X3BhaXJfbGlzdCkgewogIG15ZGF0YVtpWzJdXSA8LSBhcy5udW1lcmljKG15ZGF0YSRjYXQxID09IGlbMV0pCn0KCiMgY29udmVydCBjaGFyYWN0ZXIgdmFyaWFibGVzIHRvIG51bWVyaWNhbCB2YXJpYWJsZXMgKGJpbmFyeSkgZm9yIG90aGVyIHZhcmlhYmxlcwpteWRhdGEkZmVtYWxlIDwtIGFzLm51bWVyaWMobXlkYXRhJHNleCA9PSAiRmVtYWxlIikKbXlkYXRhJGRpZWQgPC0gYXMubnVtZXJpYyhteWRhdGEkZGVhdGggPT0gIlllcyIpCm15ZGF0YSR0cmVhdG1lbnQgPC0gYXMubnVtZXJpYyhteWRhdGEkc3dhbmcxID09ICJSSEMiKQoKIyBkcm9wIHVzZWQgKG5vIG1vcmUgbmVlZGVkKSBjb2x1bW5zL3ZhcnMgZnJvbSBuZXcgZGF0YXNldApteWRhdGEgPC0gc3Vic2V0KG15ZGF0YSwgc2VsZWN0ID0gLWMoY2F0MSwgc2V4LCBkZWF0aCwgc3dhbmcxKSkKYGBgCgpBZGQgYSBuZXcgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpJbnNlcnQgQ2h1bmsqIGJ1dHRvbiBvbiB0aGUgdG9vbGJhciBvciBieSBwcmVzc2luZyAqQ21kK09wdGlvbitJKi4KCldoZW4geW91IHNhdmUgdGhlIG5vdGVib29rLCBhbiBIVE1MIGZpbGUgY29udGFpbmluZyB0aGUgY29kZSBhbmQgb3V0cHV0IHdpbGwgYmUgc2F2ZWQgYWxvbmdzaWRlIGl0IChjbGljayB0aGUgKlByZXZpZXcqIGJ1dHRvbiBvciBwcmVzcyAqQ21kK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuIAoKVGhlIHByZXZpZXcgc2hvd3MgeW91IGEgcmVuZGVyZWQgSFRNTCBjb3B5IG9mIHRoZSBjb250ZW50cyBvZiB0aGUgZWRpdG9yLiBDb25zZXF1ZW50bHksIHVubGlrZSAqS25pdCosICpQcmV2aWV3KiBkb2VzIG5vdCBydW4gYW55IFIgY29kZSBjaHVua3MuIEluc3RlYWQsIHRoZSBvdXRwdXQgb2YgdGhlIGNodW5rIHdoZW4gaXQgd2FzIGxhc3QgcnVuIGluIHRoZSBlZGl0b3IgaXMgZGlzcGxheWVkLg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiRGF0YSBFeGFtcGxlIGluIFIgLSBXZWVrIDMgLSBNYXRjaGluZyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gCgpUcnkgZXhlY3V0aW5nIHRoaXMgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpSdW4qIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ21kK1NoaWZ0K0VudGVyKi4gCgoKCmBgYHtyfQojIGxvYWQgcGFjYWtnZXMKbGlicmFyeSh0YWJsZW9uZSkKbGlicmFyeShNYXRjaGluZykKCiMgcmVhZCBpbiBkYXRhCmxvYWQodXJsKCJodHRwczovL2Jpb3N0YXQuYXBwLnZ1bWMub3JnL3dpa2kvcHViL01haW4vRGF0YVNldHMvcmhjLnNhdiIpKQojIHZpZXcgZGF0YQpWaWV3KHJoYykKYGBgCgoKYGBge3J9CiN0cmVhdG1lbnQgdmFyaWFibGVzIGlzIHN3YW5nMQojeCB2YXJpYWJsZXMgdGhhdCB3ZSB3aWxsIHVzZQojY2F0MTogcHJpbWFyeSBkaXNlYXNlIGNhdGVnb3J5CiNhZ2UKI3NleAojbWVhbmJwMTogbWVhbiBibG9vZCBwcmVzc3VyZQoKIyB2YXJpYWJsZXMgd2Ugd2lsbCBrZWVwCmxpc3Rfa2VlcF92YXIgPC0gYygiY2F0MSIsICJkZWF0aCIsICJhZ2UiLCAic2V4IiwgIm1lYW5icDEiLCAic3dhbmcxIikKCiMgY3JlYXRlIG5ldyBkYXRhc2V0Cm15ZGF0YSA8LSByaGNbbGlzdF9rZWVwX3Zhcl0KCiMgY29udmVydCBjaGFyYWN0ZXIgdmFyaWFibGVzIHRvIG51bWVyaWNhbCB2YXJpYWJsZXMgKGJpbmFyeSkgZm9yIGNhdDEgdmFyaWFibGUKY2F0MV9vbGRfbGV2ZWxzIDwtIGMoIkFSRiIsICJDSEYiLCAiQ2lycmhvc2lzIiwgIkNvbG9uIENhbmNlciIsICJDb21hIiwKICAgICAgICAgICAgICAgICAgICAgIkNPUEQiLCAiTHVuZyBDYW5jZXIiLCAiTU9TRiB3L01hbGlnbmFuY3kiLCAiTU9TRiB3L1NlcHNpcyIpCmNhdDFfbmV3X2xldmVscyA8LSBjKCJBUkYiLCAiQ0hGIiwgIkNpcnIiLCAiY29sY2FuIiwgIkNvbWEiLCAiQ09QRCIsICJsdW5nY2FuIiwKICAgICAgICAgICAgICAgICAgICAgIk1PU0YiLCAic2Vwc2lzIikKY2F0MV9vbGRfbmV3X3BhaXJfbGlzdCA8LSBtYXBwbHkoYywgY2F0MV9vbGRfbGV2ZWxzLCBjYXQxX25ld19sZXZlbHMsIFNJTVBMSUZZID0gRkFMU0UpCmZvciAoaSBpbiBjYXQxX29sZF9uZXdfcGFpcl9saXN0KSB7CiAgbXlkYXRhW2lbMl1dIDwtIGFzLm51bWVyaWMobXlkYXRhJGNhdDEgPT0gaVsxXSkKfQoKIyBjb252ZXJ0IGNoYXJhY3RlciB2YXJpYWJsZXMgdG8gbnVtZXJpY2FsIHZhcmlhYmxlcyAoYmluYXJ5KSBmb3Igb3RoZXIgdmFyaWFibGVzCm15ZGF0YSRmZW1hbGUgPC0gYXMubnVtZXJpYyhteWRhdGEkc2V4ID09ICJGZW1hbGUiKQpteWRhdGEkZGllZCA8LSBhcy5udW1lcmljKG15ZGF0YSRkZWF0aCA9PSAiWWVzIikKbXlkYXRhJHRyZWF0bWVudCA8LSBhcy5udW1lcmljKG15ZGF0YSRzd2FuZzEgPT0gIlJIQyIpCgojIGRyb3AgdXNlZCAobm8gbW9yZSBuZWVkZWQpIGNvbHVtbnMvdmFycyBmcm9tIG5ldyBkYXRhc2V0Cm15ZGF0YSA8LSBzdWJzZXQobXlkYXRhLCBzZWxlY3QgPSAtYyhjYXQxLCBzZXgsIGRlYXRoLCBzd2FuZzEpKQpgYGAKCmBgYHtyfQojIGNvdmFyaWF0ZXMgWCB3ZSB3aWxsIHVzZSAoYWxsIGJ1dCBvdXRjb21lIFkgYW5kIHRyZWF0bWVudCBBKQp4dmFycyA8LSBjKCJBUkYiLCAiQ0hGIiwgIkNpcnIiLCAiY29sY2FuIiwgIkNvbWEiLCAibHVuZ2NhbiIsICJNT1NGIiwgInNlcHNpcyIsICJhZ2UiLCAiZmVtYWxlIiwgIm1lYW5icDEiKQoKIyBjcmVhdGUgVGFibGUgMSBpbiBwcmUtbWF0Y2hpbmcgY2FzZQp0YWJsZTEgPC0gQ3JlYXRlVGFibGVPbmUodmFycyA9IHh2YXJzLCBzdHJhdGEgPSAidHJlYXRtZW50IiAsIGRhdGEgPSBteWRhdGEsIHRlc3QgPSBGQUxTRSkgIyB0ZXN0ID0gRkFMU0UgZm9yIG5vdCBkb2luZyBhIHNpZ25pZmljYW5jZSB0ZXN0IGJldHdlZW4gZ3JvdXBzCnByaW50KHRhYmxlMSwgc21kID0gVFJVRSkgIyBzdGFuZGFyZGl6ZXMgbWVhbiBkaWZmZXJlbmNlIGJldHdlZW4gZ3JvdXBzIGNvbXB1dGVkCmBgYAoKCmBgYHtyfQojIG5vdyB3ZSBwZXJmb3JtIGdyZWVkeSBtYXRjaGluZyBvbiB0aGUgTWFoYWxhbm9iaXMgZGlzdGFuY2UgdG8gbG93ZXIgdGhlIHNtZCBhbmQgdGhlcmVieSBpbXByb3ZlIGJhbGFuY2Ugb2YgY292YXJpYXRlcyBYIGJldHdlZW4gdGhlIHRyZWF0bWVudCBncm91cHMKZ3JlZWR5bWF0Y2ggPC0gTWF0Y2goVHIgPSBteWRhdGEkdHJlYXRtZW50LCBYID0gbXlkYXRhW3h2YXJzXSwgTSA9IDEpICMgTSBzcGVjaWZpZXMgbWF0Y2hpbmctdHlwZSBpLmUuIDEtdG8tTQptYXRjaGVkIDwtIG15ZGF0YVtjKGdyZWVkeW1hdGNoJGluZGV4LnRyZWF0ZWQsIGdyZWVkeW1hdGNoJGluZGV4LmNvbnRyb2wpLF0KYGBgCgpgYGB7cn0KIyBjcmVhdGUgVGFibGUgMSBpbiBwb3N0LW1hdGNoaW5nIGNhc2UKbWF0Y2hlZHRhYmxlMSA8LSBDcmVhdGVUYWJsZU9uZSh2YXJzID0geHZhcnMsIHN0cmF0YSA9ICJ0cmVhdG1lbnQiICwgZGF0YSA9IG1hdGNoZWQsIHRlc3QgPSBGQUxTRSkKcHJpbnQobWF0Y2hlZHRhYmxlMSwgc21kID0gVFJVRSkgIyB3ZSBvYnNlcnZlIGJhbGFuY2UgYmV0d2VlbiB0aGUgdHJlYXRtZW50IGdyb3VwcyB3aXRoIGFsbCBzbWQgZmFyIGJlbG93IHRoZSBjcml0aWNhbCB0aHJlc2hvbGQgb2YgMC4xCmBgYAoKYGBge3J9CiMgb3V0Y29tZSBhbmFseXNpcwojIHBlcmZvcm0gYSBwYWlyZWQgdC10ZXN0IHRvIGNvbXB1dGUgY2F1c2FsIHJpc2sgZGlmZmVyZW5jZQp5X3RydCA8LSBtYXRjaGVkW21hdGNoZWQkdHJlYXRtZW50ID09IDEsIF0kZGllZAp5X2NvbiA8LSBtYXRjaGVkW21hdGNoZWQkdHJlYXRtZW50ID09IDAsIF0kZGllZAoKIyBwYWlyd2lzZSBkaWZmZXJlbmNlCmRpZmZ5IDwtIHlfdHJ0IC0geV9jb24KCiMgcGFpcmVkIHQtdGVzdAp0LnRlc3QoZGlmZnkpICMgdGhlIHBvaW50IGVzdGltYXRlIG9mIHRoZSBjYXVzYWwgcmlzayBkaWZmZXJlbmNlIGlzIDAuNDU7IHRoZSBwLXZhbHVlIGlzIDAuMDAwODcsIHdlIHJlamVjdCBudWxsIGh5cG90aGVzaXMgdGhhdCByaXNrIGRpZmZlcmVuY2UgaXMgMC4wMAoKIyBhbHRlcm5hdGl2ZWx5IGNvbXB1dGUgZGlmZmVyZW5jZSBpbiBkZWF0aF9wcm9iIGJldHdlZW4gdHJlYXRlZCBhbmQgY29udHJvbAp0cnRfZGVhdGhzIDwtIHN1bShteWRhdGFbYyhncmVlZHltYXRjaCRpbmRleC50cmVhdGVkKSxdJGRpZWQgPT0gMSkKY291bnRfdHJ0IDwtIGxlbmd0aChncmVlZHltYXRjaCRpbmRleC50cmVhdGVkKQpjb25fZGVhdGhzIDwtIHN1bShteWRhdGFbYyhncmVlZHltYXRjaCRpbmRleC5jb250cm9sKSxdJGRpZWQgPT0gMSkKY291bnRfY29uIDwtIGxlbmd0aChncmVlZHltYXRjaCRpbmRleC5jb250cm9sKQpwX2RlYXRoX3RydCA8LSAodHJ0X2RlYXRocy9jb3VudF90cnQpCnBfZGVhdGhfY29uIDwtIChjb25fZGVhdGhzL2NvdW50X2NvbikKcmlza19kaWZmIDwtICBwX2RlYXRoX3RydCAtIHBfZGVhdGhfY29uCmNhdCgiRGlmZmVyZW5jZSBpbiBwcm9iLiBvZiBkZWF0aCBpZiBldmVyeW9uZSByZWNlaXZlZCB0cmVhdG1lbnQgKFJIQykgdnMgaWYgbm8gb25lIHJlY2VpdmVkIHRyZWF0bWVudCAoUkhDKSBpczoiLCByaXNrX2RpZmYsIi4iKQpgYGAKCmBgYHtyfQojIGFsdGVybmF0aXZlbHkgd2UgY291bGQgY2Fycnkgb3V0IG91dGNvbWUgYW5hbHlzaXMgYmFzZWQgb24gYSBNY05lbWFyIHRlc3QgdXNpbmcgY291bnQgZGF0YSBpbnN0ZWFkIG9mIHJhdyB2YWx1ZXMKCnRhYmxlKHlfdHJ0LHlfY29uKSAjIGRpc2NvcmRhbnQgcGFyaXM6ICh0cnQ9MSxjb249MCkgIz00OTNkZWF0aHMgLCAodHJ0PTAsY29uPTEpICM9Mzk0ZGVhdGhzIC0+IGJpZ2dlciBudW1iZXIgdGhhdCB0cmVhdGVkIHBlcnNvbiBkaWVzCiMgaW50ZXJwcmV0YXRpb24gb2YgKHRydD0xLGNvbj0wKSAjPTQ5M2RlYXRoczogNDkzIHBhaXJzIHdoZXJlIHRyZWF0ZWQgc3ViamVjdCBkaWVkIGJ1dCBub3QgdGhlIGNvbnRyb2wKbWNuZW1hci50ZXN0KHggPSBtYXRyaXgoZGF0YSA9IGMoMzA1LDM5NCw0OTMsOTk0KSwgbnJvdyA9IDIsIG5jb2wgPSAyKSkgIyBjb25maXJtcyBwcmV2aW91cyBzbWFsbCBwLXZhbHVlIChmb3IgdGVzdGluZyB0aGUgaHlwb3RoZXNpcyBvZiBubyB0cmVhdG1lbnQgZWZmZWN0KQpgYGAKCgpBZGQgYSBuZXcgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpJbnNlcnQgQ2h1bmsqIGJ1dHRvbiBvbiB0aGUgdG9vbGJhciBvciBieSBwcmVzc2luZyAqQ21kK09wdGlvbitJKi4KCldoZW4geW91IHNhdmUgdGhlIG5vdGVib29rLCBhbiBIVE1MIGZpbGUgY29udGFpbmluZyB0aGUgY29kZSBhbmQgb3V0cHV0IHdpbGwgYmUgc2F2ZWQgYWxvbmdzaWRlIGl0IChjbGljayB0aGUgKlByZXZpZXcqIGJ1dHRvbiBvciBwcmVzcyAqQ21kK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuIAoKVGhlIHByZXZpZXcgc2hvd3MgeW91IGEgcmVuZGVyZWQgSFRNTCBjb3B5IG9mIHRoZSBjb250ZW50cyBvZiB0aGUgZWRpdG9yLiBDb25zZXF1ZW50bHksIHVubGlrZSAqS25pdCosICpQcmV2aWV3KiBkb2VzIG5vdCBydW4gYW55IFIgY29kZSBjaHVua3MuIEluc3RlYWQsIHRoZSBvdXRwdXQgb2YgdGhlIGNodW5rIHdoZW4gaXQgd2FzIGxhc3QgcnVuIGluIHRoZSBlZGl0b3IgaXMgZGlzcGxheWVkLg==</div>
 
 
 

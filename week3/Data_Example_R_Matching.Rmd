@@ -30,7 +30,7 @@ View(rhc)
 #meanbp1: mean blood pressure
 
 # variables we will keep
-list_keep_var <- c("cat1", "death", "age", "sex", "swang1")
+list_keep_var <- c("cat1", "death", "age", "sex", "meanbp1", "swang1")
 
 # create new dataset
 mydata <- rhc[list_keep_var]
@@ -53,6 +53,60 @@ mydata$treatment <- as.numeric(mydata$swang1 == "RHC")
 # drop used (no more needed) columns/vars from new dataset
 mydata <- subset(mydata, select = -c(cat1, sex, death, swang1))
 ```
+
+```{r}
+# covariates X we will use (all but outcome Y and treatment A)
+xvars <- c("ARF", "CHF", "Cirr", "colcan", "Coma", "lungcan", "MOSF", "sepsis", "age", "female", "meanbp1")
+
+# create Table 1 in pre-matching case
+table1 <- CreateTableOne(vars = xvars, strata = "treatment" , data = mydata, test = FALSE) # test = FALSE for not doing a significance test between groups
+print(table1, smd = TRUE) # standardizes mean difference between groups computed
+```
+
+
+```{r}
+# now we perform greedy matching on the Mahalanobis distance to lower the smd and thereby improve balance of covariates X between the treatment groups
+greedymatch <- Match(Tr = mydata$treatment, X = mydata[xvars], M = 1) # M specifies matching-type i.e. 1-to-M
+matched <- mydata[c(greedymatch$index.treated, greedymatch$index.control),]
+```
+
+```{r}
+# create Table 1 in post-matching case
+matchedtable1 <- CreateTableOne(vars = xvars, strata = "treatment" , data = matched, test = FALSE)
+print(matchedtable1, smd = TRUE) # we observe balance between the treatment groups with all smd far below the critical threshold of 0.1
+```
+
+```{r}
+# outcome analysis
+# perform a paired t-test to compute causal risk difference
+y_trt <- matched[matched$treatment == 1, ]$died
+y_con <- matched[matched$treatment == 0, ]$died
+
+# pairwise difference
+diffy <- y_trt - y_con
+
+# paired t-test
+t.test(diffy) # the point estimate of the causal risk difference is 0.45; the p-value is 0.00087, we reject null hypothesis that risk difference is 0.00
+
+# alternatively compute difference in death_prob between treated and control
+trt_deaths <- sum(mydata[c(greedymatch$index.treated),]$died == 1)
+count_trt <- length(greedymatch$index.treated)
+con_deaths <- sum(mydata[c(greedymatch$index.control),]$died == 1)
+count_con <- length(greedymatch$index.control)
+p_death_trt <- (trt_deaths/count_trt)
+p_death_con <- (con_deaths/count_con)
+risk_diff <-  p_death_trt - p_death_con
+cat("Difference in prob. of death if everyone received treatment (RHC) vs if no one received treatment (RHC) is:", risk_diff,".")
+```
+
+```{r}
+# alternatively we could carry out outcome analysis based on a McNemar test using count data instead of raw values
+
+table(y_trt,y_con) # discordant paris: (trt=1,con=0) #=493deaths , (trt=0,con=1) #=394deaths -> bigger number that treated person dies
+# interpretation of (trt=1,con=0) #=493deaths: 493 pairs where treated subject died but not the control
+mcnemar.test(x = matrix(data = c(305,394,493,994), nrow = 2, ncol = 2)) # confirms previous small p-value (for testing the hypothesis of no treatment effect)
+```
+
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 
