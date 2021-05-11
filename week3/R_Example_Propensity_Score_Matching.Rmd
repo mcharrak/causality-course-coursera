@@ -1,0 +1,146 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+# load pacakges
+library(tableone)
+library(MatchIt)
+library(Matching)
+
+# read in data
+load(url("https://biostat.app.vumc.org/wiki/pub/Main/DataSets/rhc.sav"))
+# view data
+View(rhc)
+```
+
+```{r}
+#treatment variables is swang1
+#x variables that we will use
+#cat1: primary disease category
+#age
+#sex
+#meanbp1: mean blood pressure
+
+# variables we will keep
+list_keep_var <- c("cat1", "death", "age", "sex", "meanbp1", "swang1", "aps1")
+
+# create new dataset
+mydata <- rhc[list_keep_var]
+
+# convert character variables to numerical variables (binary) for cat1 variable
+cat1_old_levels <- c("ARF", "CHF", "Cirrhosis", "Colon Cancer", "Coma",
+                     "COPD", "Lung Cancer", "MOSF w/Malignancy", "MOSF w/Sepsis")
+cat1_new_levels <- c("ARF", "CHF", "Cirr", "colcan", "Coma", "COPD", "lungcan",
+                     "MOSF", "sepsis")
+cat1_old_new_pair_list <- mapply(c, cat1_old_levels, cat1_new_levels, SIMPLIFY = FALSE)
+for (i in cat1_old_new_pair_list) {
+  mydata[i[2]] <- as.numeric(mydata$cat1 == i[1])
+}
+
+# convert character variables to numerical variables (binary) for other variables
+mydata$female <- as.numeric(mydata$sex == "Female")
+mydata$died <- as.numeric(mydata$death == "Yes")
+mydata$treatment <- as.numeric(mydata$swang1 == "RHC")
+
+# drop used (no more needed) columns/vars from new dataset
+mydata <- subset(mydata, select = -c(cat1, sex, death, swang1))
+
+# rename aps1 column of dataframe
+colnames(mydata)[colnames(mydata) == "aps1"] <- "aps"
+```
+
+```{r}
+# fit model to compute propensity scores
+psmodel <- glm(formula = treatment~ARF+CHF+Cirr+colcan+Coma+lungcan+MOSF+sepsis+age+female+meanbp1+aps,
+               family = binomial(), data = mydata)
+# fit glm with treatment as outcome; binomial() lets R know that outcome is binary -> R by default will thus use the logit() link fct. to perform logistic regression (LR)
+
+# inspect coefficients of fitted model
+summary(psmodel)
+# generate propensity scores
+pscore <- psmodel$fitted.values
+```
+
+```{r}
+# use matchit on the propensity scores with nearest-neighbor (i.e. greedy) matching
+# for now we use the internal capability of the MatchIt pacakge for propensity score matching (instead of using the manually computed (above) propensity scores)
+m.out <- matchit(formula = treatment~ARF+CHF+Cirr+colcan+Coma+lungcan+MOSF+sepsis+age+female+meanbp1+aps, data = mydata, method = "nearest") # this line performs 1. propensity score computation using glm and 2. matching based on propensity scores
+
+summary(m.out)
+
+# propensity score plots
+plot(m.out, type = "jitter")
+plot(m.out, type = "hist")
+```
+```{r}
+# now match with and without caliper using greedy matching (nearest neighbor) on logit(propensity scores)
+
+# 1. greedy matching on logit(ps)
+psmatch <- Match(Tr = mydata$treatment, M = 1, X = log(pscore/(1-pscore)), replace = FALSE) # replace=FALSE, to decide whether matching with or without replacement. B/c we set replace=FALSE, the order of matching will matter and therefore psmatch will result in different matched pairs depending on different subjects orderings)
+# subset data only using matched subjects
+matched <- mydata[c(psmatch$index.treated, psmatch$index.control),]
+
+# define covariates X we will use for table 1 comparison between groups (all but outcome Y and treatment A)
+xvars <- c("ARF", "CHF", "Cirr", "colcan", "Coma", "lungcan", "MOSF", "sepsis", "age", "female", "meanbp1", "aps")
+matchedtab1 <- CreateTableOne(vars = xvars, strata = "treatment", data = matched, test = FALSE)
+print(matchedtab1, smd = TRUE) # table 1 after matching without a CALIPER! -> we observe SMD values larger than threshold 0.1
+```
+
+```{r}
+# perform outcome analysis on matching WITHOUT CALIPER to determine causal risk difference
+y_trt <- matched[matched$treatment == 1,]$died
+y_con <- matched[matched$treatment == 0,]$died
+
+# paired t-test to test whether the mean difference between two sets of observations is zero
+t.test(x = y_trt, y = y_con, paired = TRUE)
+```
+
+
+```{r}
+# 2. re-do matching using caliper of 0.2*std on logit(propensity scores)
+# 1. greedy matching on logit(ps) with caliper
+psmatch <- Match(Tr = mydata$treatment, M = 1, X = log(pscore/(1-pscore)), replace = FALSE, caliper = 0.2) 
+# logit(pscore) = log(pscore/(1-pscore))
+# 0.2 means: 0.2*STD of logit(pscore)
+# replace=FALSE, to decide whether matching with or without replacement. B/c we set replace=FALSE, the order of matching will matter and therefore psmatch will result in different matched pairs depending on different subjects orderings)
+# subset data only using matched subjects
+matched <- mydata[c(psmatch$index.treated, psmatch$index.control),]
+
+# define covariates X we will use for table 1 comparison between groups (all but outcome Y and treatment A)
+xvars <- c("ARF", "CHF", "Cirr", "colcan", "Coma", "lungcan", "MOSF", "sepsis", "age", "female", "meanbp1", "aps")
+matchedtab1 <- CreateTableOne(vars = xvars, strata = "treatment", data = matched, test = FALSE)
+print(matchedtab1, smd = TRUE) # table 1 after matching with a CALIPER!
+# 1st: we observe SMD values all smaller than threshold 0.1
+# 2nd: we observe that there are fewer matched pairs (down from 2184 to 1900) because we now used a caliper
+# TRADEOFF when using CALIPER: (+) benefit: better matches, meaning smaller smd values (thus lower bias) // (-) drawback: fewer matched pairs, higher variance
+```
+```{r}
+# perform outcome analysis on matching WITH CALIPER to determine causal risk difference
+y_trt <- matched[matched$treatment == 1,]$died
+y_con <- matched[matched$treatment == 0,]$died
+
+# paired t-test to test whether the mean difference between two sets of observations is zero
+t.test(x = y_trt, y = y_con, paired = TRUE)
+# risk
+```
+```{r}
+# summary of observations with CALIPER: 
+# (1) without the caliper 2184 pairs and risk difference of 0.034 (0.01, 0.062) -> lower variance estimates, see interval range of 0.05.
+# (2) with caliper 1900 pairs and risk difference of 0.024 (-0.01, 0.054)
+# (3) stat. signficanc vanished: p-value increased from 0.016 up to 0.126
+# -> the statistical signficance has been lost due to the better matches -> less bias, but higher variance see interval range of 0.064 = d(-0.01,0.054)
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
