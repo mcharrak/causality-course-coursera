@@ -1920,10 +1920,10 @@ cat(&quot;Difference in prob. of death if everyone received treatment (RHC) vs i
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBhbHRlcm5hdGl2ZWx5IHdlIGNvdWxkIGNhcnJ5IG91dCBvdXRjb21lIGFuYWx5c2lzIGJhc2VkIG9uIGEgTWNOZW1hciB0ZXN0IHVzaW5nIGNvdW50IGRhdGEgaW5zdGVhZCBvZiByYXcgdmFsdWVzXG5cbnRhYmxlKHlfdHJ0LHlfY29uKSAjIGRpc2NvcmRhbnQgcGFyaXM6ICh0cnQ9MSxjb249MCkgIz00OTMsICh0cnQ9MSxjb249MCkgIz00OTNkZWF0aHMsICh0cnQ9MCxjb249MSkgIz0zOTRkZWF0aHMgLT4gYmlnZ2VyIG51bWJlciB0aGF0IHRyZWF0ZWQgcGVyc29uIGRpZXNcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBhbHRlcm5hdGl2ZWx5IHdlIGNvdWxkIGNhcnJ5IG91dCBvdXRjb21lIGFuYWx5c2lzIGJhc2VkIG9uIGEgTWNOZW1hciB0ZXN0IHVzaW5nIGNvdW50IGRhdGEgaW5zdGVhZCBvZiByYXcgdmFsdWVzXG5cbnRhYmxlKHlfdHJ0LHlfY29uKSAjIGRpc2NvcmRhbnQgcGFyaXM6ICh0cnQ9MSxjb249MCkgIz00OTNkZWF0aHMgLCAodHJ0PTAsY29uPTEpICM9Mzk0ZGVhdGhzIC0+IGJpZ2dlciBudW1iZXIgdGhhdCB0cmVhdGVkIHBlcnNvbiBkaWVzXG5gYGAifQ== -->
 <pre class="r"><code># alternatively we could carry out outcome analysis based on a McNemar test using count data instead of raw values
 
-table(y_trt,y_con) # discordant paris: (trt=1,con=0) #=493, (trt=1,con=0) #=493deaths, (trt=0,con=1) #=394deaths -&gt; bigger number that treated person dies</code></pre>
+table(y_trt,y_con) # discordant paris: (trt=1,con=0) #=493deaths , (trt=0,con=1) #=394deaths -&gt; bigger number that treated person dies</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiICAgICB5X2NvblxueV90cnQgICAwICAgMVxuICAgIDAgMzA1IDM5NFxuICAgIDEgNDkzIDk5NFxuIn0= -->
 <pre><code>     y_con
@@ -1931,8 +1931,9 @@ y_trt   0   1
     0 305 394
     1 493 994</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWNuZW1hci50ZXN0KHggPSBtYXRyaXgoZGF0YSA9IGMoMzA1LDM5NCw0OTMsOTk0KSwgbnJvdyA9IDIsIG5jb2wgPSAyKSlcbmBgYCJ9 -->
-<pre class="r"><code>mcnemar.test(x = matrix(data = c(305,394,493,994), nrow = 2, ncol = 2))</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBpbnRlcnByZXRhdGlvbiBvZiAodHJ0PTEsY29uPTApICM9NDkzZGVhdGhzOiA0OTMgcGFpcnMgd2hlcmUgdHJlYXRlZCBzdWJqZWN0IGRpZWQgYnV0IG5vdCB0aGUgY29udHJvbFxubWNuZW1hci50ZXN0KHggPSBtYXRyaXgoZGF0YSA9IGMoMzA1LDM5NCw0OTMsOTk0KSwgbnJvdyA9IDIsIG5jb2wgPSAyKSkgIyBjb25maXJtcyBwcmV2aW91cyBzbWFsbCBwLXZhbHVlIChmb3IgdGVzdGluZyB0aGUgaHlwb3RoZXNpcyBvZiBubyB0cmVhdG1lbnQgZWZmZWN0KVxuYGBgIn0= -->
+<pre class="r"><code># interpretation of (trt=1,con=0) #=493deaths: 493 pairs where treated subject died but not the control
+mcnemar.test(x = matrix(data = c(305,394,493,994), nrow = 2, ncol = 2)) # confirms previous small p-value (for testing the hypothesis of no treatment effect)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiXG5cdE1jTmVtYXIncyBDaGktc3F1YXJlZCB0ZXN0IHdpdGggY29udGludWl0eSBjb3JyZWN0aW9uXG5cbmRhdGE6ICBtYXRyaXgoZGF0YSA9IGMoMzA1LCAzOTQsIDQ5MywgOTk0KSwgbnJvdyA9IDIsIG5jb2wgPSAyKVxuTWNOZW1hcidzIGNoaS1zcXVhcmVkID0gMTAuODI4LCBkZiA9IDEsIHAtdmFsdWUgPSAwLjAwMVxuIn0= -->
 <pre><code>
