@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "R Example Propensity Score Matching - Week 3"
 output: html_notebook
 ---
 
@@ -78,6 +78,7 @@ summary(m.out)
 plot(m.out, type = "jitter")
 plot(m.out, type = "hist")
 ```
+
 ```{r}
 # now match with and without caliper using greedy matching (nearest neighbor) on logit(propensity scores)
 

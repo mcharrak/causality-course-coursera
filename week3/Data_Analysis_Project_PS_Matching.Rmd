@@ -1,0 +1,134 @@
+---
+title: "Data Analysis Project - Assignemnt - Propensity Score Matching"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+# Data to be used:  Lalonde (1986).
+# Task of interest is is in estimating the causal effect of the training program on income.
+
+# install needed packages
+#install.packages("tableone")
+#install.packages("Matching")
+#install.packages("MatchIt")
+# load packages
+library(tableone)
+library(Matching)
+library(MatchIt)
+```
+
+
+```{r}
+# load Lalonde data from MatchIt
+data(lalonde, package = 'MatchIt')
+
+# fix missing variables issue by creating black and hispan variables separately (using the levels form the race varible of lalonde)
+lalonde$black <- as.integer(ifelse(lalonde$race == "black", 1, 0))
+lalonde$hispan <- as.integer(ifelse(lalonde$race == "hispan", 1, 0))
+# now drop race variable
+lalonde <- subset(lalonde, select = -c(race))
+```
+
+
+```{r}
+### Q1: Find the standardized differences for all of the confounding variables (pre-matching). What is the standardized difference for married (to nearest hundredth)?
+xvars <- c("age", "educ", "black", "hispan", "married", "nodegree", "re74", "re75") # do not use re78 because it is the outcome
+table1_pre_match <- CreateTableOne(vars = xvars, strata = "treat", data = lalonde, test = FALSE)
+print(table1_pre_match, smd = TRUE)
+### ANSWER Q1 : 0.72
+```
+
+```{r}
+### Q2: What is the raw (unadjusted) mean of real earnings in 1978 for treated subjects minus the mean of real earnings in 1978 for untreated subjects?
+mean_diff_pre_match <- mean(lalonde$re78[lalonde$treat == 1]) - mean(lalonde$re78[lalonde$treat == 0])
+cat(mean_diff_pre_match)
+### ANSWER Q2:-635
+```
+```{r}
+# compute prop. score for each subject using the 8 confouding variables; age, educ, black, hispan, married, nodegree, re74, re75.
+psmodel <- glm(formula = treat~age+educ+black+hispan+married+nodegree+re74+re75, data = lalonde, family = binomial())
+# inspect coefficients of fitted model
+summary(psmodel)
+# generate propensity scores
+pscore <- psmodel$fitted.values
+```
+
+```{r}
+### Q3: What are the minimum and maximum values of the estimated propensity score?     
+
+cat("Min estimated prop. score is:", round(min(pscore),digits = 3), "and max estimated prop. score is:", round(max(pscore),digits = 3),".")
+
+### Answer Q3: Min. prop. score = 0.009 // Max. prop. score = 0.853.
+```
+
+```{r}
+# now performing propensity score matching using the Match function of the Matching package
+# to make results non-random set seed according to assignment instructions
+set.seed(931139)
+```
+
+```{r}
+### Q4: What is the standardized difference for married?
+
+#  matching options: 1. pair-matching (M=1), 2. without replacement (replace = FALSE), 3. no caliper
+# performs matching on the propensity scores themselves (DON'T match on logit(propensity scores)! as done in the lecture R examples)
+psmatch <- Match(Tr = lalonde$treat, X = pscore, M = 1, replace = FALSE)
+matched <- lalonde[c(psmatch$index.treated, psmatch$index.control),]
+
+xvars <- c("age", "educ", "black", "hispan", "married", "nodegree", "re74", "re75") # do not use re78 because it is the outcome
+table1_post_match <- CreateTableOne(vars = xvars, strata = "treat", data = matched, test = FALSE)
+print(table1_post_match, smd = TRUE)
+### Answer Q4: 0.027
+```
+
+```{r}
+### Q5: For the propensity score matched data: Which variable has the largest standardized difference?
+print(table1_post_match, smd = TRUE)
+### Answer Q5: max SMD for variable "black" with 0.852
+```
+
+```{r}
+### Q6: How many matched pairs are there? 
+
+# re-do propensity score matching from above with caliper value of 0.1
+set.seed(931139)
+
+#  matching options: 1. pair-matching (M=1), 2. without replacement (replace = FALSE), 3. caliper value = 0.1 (clp)
+# performs matching on the propensity scores themselves (DON'T match on logit(propensity scores)! as done in the lecture R examples)
+psmatch_clp <- Match(Tr = lalonde$treat, X = pscore, M = 1, replace = FALSE, caliper = 0.1)
+matched_clp <- lalonde[c(psmatch_clp$index.treated, psmatch_clp$index.control),]
+
+xvars <- c("age", "educ", "black", "hispan", "married", "nodegree", "re74", "re75") # do not use re78 because it is the outcome
+table1_post_match_clp <- CreateTableOne(vars = xvars, strata = "treat", data = matched_clp, test = FALSE)
+print(table1_post_match_clp, smd = TRUE)
+### Answer Q6: 111
+```
+
+```{r}
+### Q7: For the matched data, what is the mean of real earnings in 1978 for treated subjects minus the mean of real earnings in 1978 for untreated subjects? 
+mean_diff_post_match_clp <- mean(matched_clp$re78[matched_clp$treat == 1]) - mean(matched_clp$re78[matched_clp$treat == 0])
+cat(mean_diff_post_match_clp)
+### ANSWER Q7: 1246.806
+```
+
+```{r}
+### Q8: Use the matched data set (from propensity score matching with caliper=0.1) to carry out the outcome analysis. Carry out a paired t-test for the effect of treatment on earnings. What are the values of the 95% confidence interval?
+y_trt <- matched_clp$re78[matched_clp$treat == 1]
+y_con <- matched_clp$re78[matched_clp$treat == 0]
+
+ttest_result <- t.test(x = y_trt, y = y_con, paired = TRUE)
+cat("The 95% confidence intervals of the risk difference is (", round(ttest_result$conf.int[1],digits = 2), ",", round(ttest_result$conf.int[2],digits = 2),").")
+### Answer Q8: -420.0273 2913.64
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+

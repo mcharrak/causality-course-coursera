@@ -1,5 +1,5 @@
 ---
-title: "Data Example in R - Week 3 - Matching"
+title: "R Example Covariates - Week 3"
 output: html_notebook
 ---
 
