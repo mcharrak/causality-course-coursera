@@ -23,3 +23,5 @@ Thumbs.db
 
 # RStudio generated files
 *.html
+*.RData
+*.Rhistory
