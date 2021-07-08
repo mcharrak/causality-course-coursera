@@ -1,0 +1,240 @@
+---
+title: "Data Example R - Fitting a marginal structural model (MSM) using inverse probability of treatment weighting (IPTW) - Week 4"
+output: html_notebook
+---
+
+# dataset: right heart catherizaiton (RHC), treatemnt: RHC treatment (yes/no), outcome: death (yes/no), confounders: demographics, insurance, disease diagnoses, etc., #treated 2184, #control 3551.
+
+```{r}
+# load pacakges
+library(tableone)
+library(ipw) #compute inverse probability of treatment weights
+library(sandwich) #for robust variance estimation
+library(survey) #to et weighted estimators
+library(ggplot2)
+
+# read in data
+load(url("https://biostat.app.vumc.org/wiki/pub/Main/DataSets/rhc.sav"))
+# view data
+View(rhc)
+```
+
+```{r}
+#treatment variables is swang1
+#x variables that we will use
+#cat1: primary disease category
+#age
+#sex
+#meanbp1: mean blood pressure
+
+# variables we will keep
+list_keep_var <- c("cat1", "death", "age", "sex", "meanbp1", "swang1", "aps1")
+
+# create new dataset
+mydata <- rhc[list_keep_var]
+
+# convert character variables to numerical variables (binary) for cat1 variable
+cat1_old_levels <- c("ARF", "CHF", "Cirrhosis", "Colon Cancer", "Coma",
+                     "COPD", "Lung Cancer", "MOSF w/Malignancy", "MOSF w/Sepsis")
+cat1_new_levels <- c("ARF", "CHF", "Cirr", "colcan", "Coma", "COPD", "lungcan",
+                     "MOSF", "sepsis")
+cat1_old_new_pair_list <- mapply(c, cat1_old_levels, cat1_new_levels, SIMPLIFY = FALSE)
+for (i in cat1_old_new_pair_list) {
+  mydata[i[2]] <- as.numeric(mydata$cat1 == i[1])
+}
+
+# convert character variables to numerical variables (binary) for other variables
+mydata$female <- as.numeric(mydata$sex == "Female") #sex becomes an indicator variable, that is 1 iff sex == Female
+mydata$died <- as.numeric(mydata$death == "Yes")
+mydata$treatment <- as.numeric(mydata$swang1 == "RHC")
+
+# drop used (no more needed) columns/vars from new dataset
+mydata <- subset(mydata, select = -c(cat1, sex, death, swang1))
+
+# rename aps1 column of dataframe
+colnames(mydata)[colnames(mydata) == "aps1"] <- "aps"
+```
+
+```{r}
+# for IPTW we need a propensity score model:
+
+#propensity score model, logistic regression (outcome being treatment)
+psmodel <- glm(formula = treatment~age+female+meanbp1+ARF+CHF+Cirr+colcan+Coma+lungcan+MOSF+sepsis, family = binomial(link = "logit"), data = mydata) #logit link let's the glm model know that outcome is binary.
+
+# retreive propensity scores (ps)
+ps <- predict(psmodel, type = "response")
+
+# plot ps by treatment group to inspect overlap between groups
+mydata$ps <- ps
+mydata$rhc <- factor(mydata$treatment)
+ggplot(mydata, aes(x = ps, fill = rhc)) + geom_histogram(position = "identity", alpha = 0.4, bins = 15) + labs(title = "Propensity score distribution by tratment group", x = "propensity score")
+```
+```{r}
+#interpretation of propensity scores distribution by group:
+# we observe sufficient overlap, online for ps>0.7, we lack subjects from rhc=0 group, which is only a tiny fraction of total dataset.
+```
+
+```{r}
+# 1) create weights (inverse probability of received treatment)
+# because ps is computing the probability of treatment=1, we have 1/ps for treated subjects and 1/(1-ps) for control subjects
+weight <- ifelse(mydata$treatment==1,1/(ps),1/(1-ps))
+
+# 2) apply weighs to data
+weighteddata <- svydesign(ids = ~ 1, data = mydata, weights = ~ weight) # survey design function
+
+# 3) weighted table 1
+xvars = colnames(weighteddata)
+xvars = xvars[colnames(weighteddata) %in% c("treatment", "rhc", "ps", "died") == FALSE]
+weightedtable <- svyCreateTableOne(vars = xvars , strata = "treatment", data = weighteddata, test = FALSE) # test = FALSE, to not perform significance testing
+
+# 4) show table with SMD
+print(weightedtable, smd = TRUE) # standardized mean difference (smd)
+
+# below we see the weighted means, they are means of the pseudo population, all of the SMDs are very small (ideally <0.1), indicating good weighting
+```
+
+```{r}
+# to get the weighted mean for a single covariate directly (eg. age for treated subjects)
+manual_weighted_age_treated <- sum(mydata$age[mydata$treatment==1]/mydata$ps[mydata$treatment==1])/sum(1/mydata$ps[mydata$treatment==1])
+print(round(x = manual_weighted_age_treated, digits = 2))
+```
+
+```{r}
+# MSM using IPTW link functions g():
+# - with log-link function we get the causal RELATIVE RISK (RR) 
+# - with identity link function we get the causal RISK DIFFERENCE (RD)
+
+# option 1: fit a Generalized Linear Model (GLM) BUT to the pseudo (weighted) population
+# weighted GLM to get causal relative risk (RR)
+glm.obj <- glm(formula =  died~treatment, data =  mydata, family = binomial(link = log), weights = weight) #here 'binomial' tells the glm-model that the outcome is binary and 'log' tells the model that we are interested in the relative risk (RR)
+
+# the model we are fitting here is: log[E(Y^a)] = Psi0 + Psi1*a.
+summary(glm.obj)
+
+# comment on warning 'non-integer #successes in a binomial glm!' below: https://newbedev.com/warning-non-integer-successes-in-a-binomial-glm-survey-packages
+```
+
+```{r}
+# extract coefficients from the fitted weighted GLM
+betaiptw <- coefficients(glm.obj) #psi0 and psi1 from the MSM (see lecture slides)
+
+# use sandwich package to accont for the fact that we have used weighted data (pseudo population), the weights make it seem like the sample size is bigger than it actually is
+cov_mat <- vcovHC(x = glm.obj, type = "HC0")
+vars <- diag(cov_mat)
+SE <- sqrt(vars) #standard error for the 1. intercept and 2. the coefficient of treatment
+
+# compute causal relative risk
+# MSM equation is: log[E(Y^a)] = Psi0 + Psi1*a
+# relative risk (RR) is defined as: E(Y^a=1)/E(Y^a=0). So applying exp() we have: E(Y^a) = exp(Psi0 + Psi1*a) = exp(Psi0) * exp(Psi1 * a).
+# thus RR =  E(Y^a=1)/E(Y^a=0) = [exp(Psi0)*exp(Psi1 * 1)]/[exp(Psi0)*exp(Psi1 * 0)] = exp(Psi0)*exp(Ps1)/exp(Psi0)*1 = exp(Psi1)
+Psi1 <- betaiptw[2]
+causalrr <- exp(Psi1)
+# compute 95% confidence interval of the causalrr
+lower_lvl <- exp(Psi1 - 1.96*SE[2])
+upper_lvl <- exp(Psi1 + 1.96*SE[2])
+cat("The causal relative risk (RR) point estimate is: ", round(causalrr, digits = 2), " and its 95% CI is: (", round(lower_lvl, digits = 2), ", ", round(upper_lvl, digits = 2), ").", sep = "")
+
+# a RR > 1, means higher risk of death for the treated group (i.e. subjects that got rhc treatment)
+```
+
+```{r}
+# option2: get the causal risk difference (RD) by using different link function
+glm.obj2 <- glm(formula = died~treatment, data = mydata, weights = weight, family = binomial(link = "identity"))
+
+# the model we are here fitting here is: E(Y^a) = Psi0 + Psi1*a. (simple liner model), again on the pseudo population
+summary(glm.obj2)
+
+betaiptw2 <- coefficients(glm.obj2)
+SE_rd <- sqrt(diag(vcovHC(x = glm.obj2, type = "HC0")))
+Psi1_ <- betaiptw2[2]
+causalrd <- Psi1_
+
+# 95% CI of the estimand: Psi1_
+lower_lvl_rd <- Psi1_ - 1.96*SE_rd[2]
+upper_lvl_rd <- Psi1_ + 1.96*SE_rd[2]
+
+cat("The causal risk difference (RD) point estimate is: ", round(causalrd, digits = 2), " and its 95% CI is: (", round(lower_lvl_rd, digits = 2), ", ", round(upper_lvl_rd, digits = 2), ").", sep = "")
+# interpretation of RD: being exposed to the treatment (rhc) increases the risk of dying (variable:died) by 5% (0.05).
+```
+
+```{r}
+# let's reproduce above results but instead we directly use the R package IPW; which does all the work for us! (no need to compute robust variance estimates by employing the R package sandwich)
+
+# 1. specify the propensity score model
+weightmodel <- ipwpoint(exposure = treatment, family = "binomial", link = "logit",
+                        denominator = ~ age + female + meanbp1 + ARF + CHF + Cirr + colcan + Coma + lungcan + MOSF + sepsis,
+                        data = mydata)
+
+# 2. numeric summary of weights
+cat(summary(weightmodel$ipw.weights))
+mydata$wt<-weightmodel$ipw.weights
+
+# 2.1 compare to numeric summary of manually computed weights (from option1 approach abrove)
+cat(summary(weight))
+
+# 3. plot of the weights (density plot)
+ipwplot(weights = weightmodel$ipw.weights, logscale = FALSE, main = "weights density plot",
+        xlim = c(0,22), xlab = "weight") # x-range (0,22) b/c min. weight ca. 1 and max weight ca. 22
+```
+
+```{r}
+# alternative approach for fitting a MSM for the risk difference with R package: survey
+msm <- svyglm(formula = died ~ treatment, design = svydesign(~1, weights = ~wt, data = mydata)) # this gives us automaticcaly the right variance estimator (no need to use sandwich package for robust sandwich estimator)
+coefficients(msm)
+# compare automatically computed coefficients with coefficients computed manually for the risk difference model
+cat(betaiptw2) # we observe same result
+```
+
+
+```{r}
+# compute 95% CI for the point estimates/coefficients above (treatment variable only)
+confint(msm)[2,]
+confint(msm)
+# compare to results above, which leads to same result
+cat("Manually computed CI for treatment coefficient: (", c(lower_lvl_rd), ", ", c(upper_lvl_rd), ").", sep = "")
+```
+
+
+```{r}
+# lastly let's use an IPTW approach with truncated weights
+
+# suppose we would like to truncate the weights at 10
+truncweight <- replace(x = weight, list = weight>10, values = 10)
+# fit GLM with truncated weights
+glm.obj3 <- glm(formula = died~treatment, weights = truncweight, family = binomial(link = "identity"), data = mydata)
+# summary of model
+summary(glm.obj3)
+betaiptw3 <- coefficients(glm.obj3)
+SE_trunc <- sqrt(diag(vcovHC(x = glm.obj3, type = "HC0")))
+causalrd_trunc <- betaiptw3[2]
+lower_lvl_rd_trunc <- causalrd_trunc - 1.96*SE_trunc[2]
+upper_lvl_rd_trunc <- causalrd_trunc + 1.96*SE_trunc[2]
+CI_causalrd_trunc <- c(lower_lvl_rd_trunc, upper_lvl_rd_trunc)
+cat("The causal risk difference (RD) point estimate WITH TRUNCATED WEIGHTS is: ", round(causalrd_trunc, digits = 2), " and its 95% CI is: (", round(lower_lvl_rd_trunc, digits = 2), ", ", round(upper_lvl_rd_trunc, digits = 2), ").", sep = "")
+```
+
+```{r}
+# finally let's perform truncated IPTWeighting with the R package ipw
+weightmodel_trunc <- ipwpoint(exposure = treatment, family = "binomial", link = "logit", 
+                              denominator = ~ age + female + meanbp1 + ARF + CHF + Cirr + colcan + Coma + lungcan + MOSF + sepsis, 
+                              data = mydata, trunc = 0.01) #truncates at 1st and 99th percentiles
+# summary of weights
+summary(weightmodel_trunc$weights.trun)
+# plot of truncated weights
+ipwplot(weights = weightmodel_trunc$weights.trunc, logscale = FALSE, 
+        main = "weights density plot", xlim = c(0,22), xlab = "truncated weights") # x-range (0,22)
+```
+
+```{r}
+# fit a marginal structural model (MSM) to compute risk difference
+# 1. add truncated weights to dataframe
+mydata$wt_trunc <- weightmodel_trunc$weights.trunc
+# 2. fit MSM
+msm_trunc <- svyglm(formula = died ~ treatment, design = svydesign(~1, weights = ~wt_trunc, data = mydata))
+# 3. get coefficients
+coef(msm_trunc)
+# 4. compute confidence intervals
+cat("\nThe 95% CI for each coefficient:\n")
+confint(msm_trunc)
+```
+
