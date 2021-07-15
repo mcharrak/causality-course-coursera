@@ -1,11 +1,16 @@
 ---
-title: "Data Example R - Fitting a marginal structural model (MSM) using inverse probability of treatment weighting (IPTW) - Week 4"
+title: Data Example R - Fitting a marginal structural model (MSM) using inverse probability
+  of treatment weighting (IPTW) - Week 4
 output: html_notebook
 ---
 
-# dataset: right heart catherizaiton (RHC), treatemnt: RHC treatment (yes/no), outcome: death (yes/no), confounders: demographics, insurance, disease diagnoses, etc., #treated 2184, #control 3551.
+## Dataset information: 
+### -**treatment** is right heart catherization (RHC): RHC treatment (yes/no).
+### -**outcome**: death (yes/no).
+### -**confounders**: demographics, insurance, disease diagnoses, etc..
+### **#treated**: 2184 & **#control**: 3551.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # load pacakges
 library(tableone)
 library(ipw) #compute inverse probability of treatment weights
@@ -234,7 +239,7 @@ msm_trunc <- svyglm(formula = died ~ treatment, design = svydesign(~1, weights =
 # 3. get coefficients
 coef(msm_trunc)
 # 4. compute confidence intervals
-cat("\nThe 95% CI for each coefficient:\n")
+cat("The 95% CI for each coefficient:")
 confint(msm_trunc)
 ```
 
