@@ -27,4 +27,4 @@ Thumbs.db
 *.ipynb_checkpoints
 
 *.html    #exclude all .html
-!nb.html  # eclude nb.html
+#!nb.html  # eclude nb.html
